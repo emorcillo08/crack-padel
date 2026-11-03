@@ -1,12 +1,10 @@
-// Ajusta el proyecto Android que genera Capacitor: íconos, colores y número de versión.
+// Ajusta el proyecto Android que genera Capacitor: colores y número de versión.
+// Los íconos los genera make-icons.py.
 import fs from 'node:fs';
 
 const res = 'android/app/src/main/res';
 let problems = 0;
 const warn = (m) => { problems++; console.warn('AVISO: ' + m); };
-
-// Íconos y color de fondo del ícono
-fs.cpSync('resources/android/res', res, { recursive: true, force: true });
 
 // Número de versión: sube en cada compilación para que Android lo acepte como actualización
 const gradlePath = 'android/app/build.gradle';
