@@ -1,0 +1,6 @@
+# Configuración de Netlify para Crack Padel.
+# Arma la carpeta "www" con solo los archivos de la web (igual que hace el flujo de GitHub)
+# y publica esa carpeta. Así no se publican archivos del APK como debug.keystore.
+[build]
+  command = "mkdir -p www/vendor && cp index.html manifest.webmanifest icon-192.png icon-512.png www/ && cp firebase-app-compat.js firebase-auth-compat.js firebase-firestore-compat.js www/vendor/"
+  publish = "www"
