@@ -53,13 +53,9 @@ button, input, select { font: inherit; color: inherit; }
 .vh h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; }
 .vh p { color: var(--muted); font-size: 13px; }
 .sec { font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 26px 0 4px; }
-.back { display: inline-block; margin-bottom: 10px; color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.back { display: inline-block; margin-bottom: 10px; color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; background: none; border: 0; padding: 0; cursor: pointer; }
 .titlebar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .titlebar .vh { min-width: 0; }
-
-.banner { background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--muted); }
-.banner strong { color: var(--fg); font-weight: 700; }
-.banner .acts { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .btn { border: 0; border-radius: 12px; min-height: 46px; padding: 0 18px; font-weight: 700; cursor: pointer; background: var(--ball); color: var(--ball-ink); }
 .btn.block { width: 100%; }
@@ -154,12 +150,23 @@ button, input, select { font: inherit; color: inherit; }
 .chip[aria-pressed="true"] { background: var(--ball); color: var(--ball-ink); border-color: var(--ball); font-weight: 700; }
 .chip:disabled { opacity: .35; cursor: default; }
 .count { font-size: 13px; color: var(--muted); }
-.quick { border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.quick { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 16px 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* Comunidades */
+.opts { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.opt { text-align: left; background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.opt strong { font-family: var(--font-display); font-weight: 600; font-size: 21px; letter-spacing: .04em; text-transform: uppercase; }
+.opt span { color: var(--muted); font-size: 13px; line-height: 1.4; }
+.codebox { background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.code { font-family: var(--font-display); font-weight: 700; font-size: 38px; letter-spacing: .1em; color: var(--ball); line-height: 1; overflow-wrap: anywhere; }
+.codebox .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.help { font-size: 13px; color: var(--muted); }
+.ver { margin-top: 24px; font-size: 12px; color: var(--muted); }
 
 /* Barra inferior */
 .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); z-index: 5;
   padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-.bar-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.bar-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
 .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0 2px; font-size: 11px; color: var(--muted); text-decoration: none; border-radius: 12px; }
 .tab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .tab[aria-current="page"] { color: var(--fg); }
@@ -180,15 +187,16 @@ button, input, select { font: inherit; color: inherit; }
     <h1>Crack Padel</h1>
   </header>
   <main id="main"></main>
-  <footer class="by">by Mundi</footer>
+  <footer class="by" id="by">by Mundi</footer>
 </div>
 
 <nav class="bar" id="bar" aria-label="Secciones" hidden>
   <div class="bar-in">
     <a class="tab" href="#ranking" data-v="ranking"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-7M12 20V5M19 20v-10"/></svg>Ranking</a>
-    <a class="tab new" href="#nuevo" data-v="nuevo"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Nuevo</a>
     <a class="tab" href="#juegos" data-v="juegos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Juegos</a>
+    <a class="tab new" href="#nuevo" data-v="nuevo"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Nuevo</a>
     <a class="tab" href="#jugadores" data-v="jugadores"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16 5.2a3 3 0 010 5.6M18 14.8c1.9.7 3 2.4 3 5.2"/></svg>Jugadores</a>
+    <a class="tab" href="#comunidad" data-v="comunidad"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>Comunidad</a>
   </div>
 </nav>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -199,6 +207,9 @@ button, input, select { font: inherit; color: inherit; }
 <script>
 (function () {
   'use strict';
+
+  // VERSIÓN DE LA APP: cambia este número cada vez que subas ajustes. Aparece abajo en la pantalla y en la sección Comunidad.
+  var APP_VERSION = '2.0';
 
   // BEGIN LOGIC
   var DEFAULT_RULES = { win: 3, draw: 2, loss: 1 };
@@ -503,7 +514,7 @@ button, input, select { font: inherit; color: inherit; }
   }
   // END LOGIC
 
-  /* ---------- Sincronización con Firebase ---------- */
+  /* ---------- Comunidades: dónde se guardan los datos ---------- */
   var FIREBASE_CONFIG = {
     apiKey: "AIzaSyCcZ0VieX2k2H5qEQbx_8uQHbMtJ-IuxNQ",
     authDomain: "crack-padel.firebaseapp.com",
@@ -512,39 +523,92 @@ button, input, select { font: inherit; color: inherit; }
     messagingSenderId: "631254505593",
     appId: "1:631254505593:web:333c27e7353e995f409ca8"
   };
-  var COLLS = ['players', 'seasons', 'sessions', 'results'];
-  var PREF_KEY = 'crack-padel-prefs';
-  var db = null, auth = null, myUid = null, started = false;
-  var appState = 'loading';           // loading | code | error | ready
-  var gateMsg = '', codeVal = '', codeBusy = false;
-  var docs = { players: {}, seasons: {}, sessions: {}, results: {}, config: null };
-  var got = {}, base = null, pendingRender = false, unsubs = [], firstSync = false;
+  // Cada comunidad vive en communities/<código>/<colección>/<id>. El código es lo que la protege.
+  var COLLS = ['players', 'sessions', 'results'];
+  var PREF_KEY = 'crack-padel-v2';
+  var LOCAL_KEY = 'crack-padel-local';
+  var CODE_ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var db = null, auth = null, myUid = null, fbReady = false, authP = null;
+  var appState = 'loading';           // loading | pick | error | ready
+  var gateMsg = '';
+  var docs = { players: {}, sessions: {}, results: {}, config: null };
+  var got = {}, base = null, pendingRender = false, unsubs = [], syncTok = 0;
 
-  function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch (e) { return {}; } }
-  function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify({ curSeason: data.curSeason })); } catch (e) {} }
+  // Preferencias de este teléfono: modo (local o comunidad), comunidad actual y comunidades guardadas.
+  function loadPrefs() {
+    var p = {};
+    try { p = JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch (e) {}
+    return {
+      mode: p.mode === 'local' || p.mode === 'cloud' ? p.mode : null,
+      code: typeof p.code === 'string' ? p.code : '',
+      joined: Array.isArray(p.joined) ? p.joined.filter(function (x) { return x && typeof x.code === 'string'; }) : []
+    };
+  }
+  var prefs = loadPrefs();
+  function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} }
+  function rememberCommunity(code, name) {
+    var found = false;
+    prefs.joined.forEach(function (j) { if (j.code === code) { found = true; if (name) j.name = name; } });
+    if (!found) prefs.joined.push({ code: code, name: name || 'Comunidad' });
+  }
+  function communityName(code) {
+    for (var i = 0; i < prefs.joined.length; i++) if (prefs.joined[i].code === code) return prefs.joined[i].name || 'Comunidad';
+    return 'Comunidad';
+  }
 
-  // Estado en memoria. curSeason es solo de este teléfono; el resto se comparte.
-  var data = { players: [], seasons: [], sessions: [], rules: { win: DEFAULT_RULES.win, draw: DEFAULT_RULES.draw, loss: DEFAULT_RULES.loss }, curSeason: loadPrefs().curSeason || '' };
-  var filt = data.curSeason || 'all';
+  function newCode() {
+    var arr = new Uint8Array(10), out = '', i;
+    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(arr);
+    else for (i = 0; i < 10; i++) arr[i] = Math.floor(Math.random() * 256);
+    for (i = 0; i < 10; i++) out += CODE_ALPHA.charAt(arr[i] % 32);
+    return out;
+  }
+  function fmtCode(c) { return c.slice(0, 5) + '-' + c.slice(5); }
+  function cleanCode(s) { return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  function validCode(c) { return /^[A-HJ-NP-Z2-9]{10}$/.test(c); }
+
+  // Estado en memoria de la comunidad (o del modo local) que se está usando.
+  function emptyData() { return { name: '', players: [], sessions: [], rules: { win: DEFAULT_RULES.win, draw: DEFAULT_RULES.draw, loss: DEFAULT_RULES.loss } }; }
+  var data = emptyData();
+
+  function num(v, d) { return typeof v === 'number' && isFinite(v) ? v : d; }
+  function normRules(r) { return { win: num(r && r.win, DEFAULT_RULES.win), draw: num(r && r.draw, DEFAULT_RULES.draw), loss: num(r && r.loss, DEFAULT_RULES.loss) }; }
+
+  // Modo local: todo se guarda solo en este teléfono.
+  function loadLocal() {
+    var d = {};
+    try { d = JSON.parse(localStorage.getItem(LOCAL_KEY)) || {}; } catch (e) {}
+    data = emptyData();
+    data.players = Array.isArray(d.players) ? d.players : [];
+    data.sessions = Array.isArray(d.sessions) ? d.sessions : [];
+    data.sessions.forEach(function (s) { if (!Array.isArray(s.rounds)) s.rounds = []; });
+    data.rules = normRules(d.rules);
+  }
+  function saveLocal() {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ players: data.players, sessions: data.sessions, rules: data.rules })); }
+    catch (e) { toast('No se pudo guardar en este teléfono.'); }
+  }
 
   // Cada elemento se guarda como un documento { j: "<json>" }. Los resultados van aparte
   // para que dos personas puedan registrar juegos de la misma jornada a la vez.
-  function serialize() {
-    var out = { players: {}, seasons: {}, sessions: {}, results: {}, config: JSON.stringify({ rules: data.rules }) };
-    data.players.forEach(function (p) { out.players[p.id] = JSON.stringify(p); });
-    data.seasons.forEach(function (s) { out.seasons[s.id] = JSON.stringify(s); });
-    data.sessions.forEach(function (s) {
+  function serializeData(d) {
+    var out = { players: {}, sessions: {}, results: {}, config: JSON.stringify({ name: d.name || '', rules: d.rules }) };
+    d.players.forEach(function (p) { out.players[p.id] = JSON.stringify(p); });
+    d.sessions.forEach(function (s) {
       out.sessions[s.id] = JSON.stringify(s, function (k, v) { return k === 'res' ? undefined : v; });
       sessionMatches(s).forEach(function (m) { if (m.res) out.results[m.id] = JSON.stringify({ sid: s.id, res: m.res }); });
     });
     return out;
   }
+  function serialize() { return serializeData(data); }
 
-  // Envía solo lo que cambió respecto a lo último que se sincronizó.
+  function cdoc(code) { return db.collection('communities').doc(code); }
+
+  // Envía solo lo que cambió respecto a lo último que se sincronizó (comunidad), o guarda todo en el teléfono (local).
   function persist() {
-    savePrefs();
-    if (appState !== 'ready' || !base) return;
-    var next = serialize(), ops = [];
+    if (prefs.mode === 'local') { saveLocal(); return; }
+    if (prefs.mode !== 'cloud' || appState !== 'ready' || !base) return;
+    var next = serialize(), ops = [], cd = cdoc(prefs.code);
     COLLS.forEach(function (c) {
       Object.keys(next[c]).forEach(function (id) {
         if (base[c][id] !== next[c][id]) ops.push({ c: c, id: id, j: next[c][id] });
@@ -558,7 +622,7 @@ button, input, select { font: inherit; color: inherit; }
     for (var i = 0; i < ops.length; i += 400) {
       var batch = db.batch();
       ops.slice(i, i + 400).forEach(function (o) {
-        var ref = db.collection(o.c).doc(o.id);
+        var ref = cd.collection(o.c).doc(o.id);
         if (o.del) batch.delete(ref); else batch.set(ref, { j: o.j });
       });
       batch.commit().catch(function (e) { toast('No se pudo guardar. Revisa tu conexión.'); console.error(e); });
@@ -570,26 +634,31 @@ button, input, select { font: inherit; color: inherit; }
       .filter(function (x) { return x && x.id; });
   }
   function byCreated(a, b) { return ((a.created || 0) - (b.created || 0)) || String(a.id).localeCompare(String(b.id)); }
-  function num(v, d) { return typeof v === 'number' && isFinite(v) ? v : d; }
 
-  function rebuild() {
-    data.players = parseAll(docs.players).sort(byCreated);
-    data.seasons = parseAll(docs.seasons).sort(byCreated);
+  // Arma jugadores, jornadas y reglas a partir de los documentos guardados.
+  function buildFromDocs(d) {
+    var out = { name: '', players: parseAll(d.players).sort(byCreated), sessions: [], rules: null, seasons: d.seasons ? parseAll(d.seasons).sort(byCreated) : [] };
     var res = {};
-    Object.keys(docs.results).forEach(function (mid) { try { res[mid] = JSON.parse(docs.results[mid]).res; } catch (e) {} });
-    data.sessions = parseAll(docs.sessions).sort(byCreated);
-    data.sessions.forEach(function (s) {
+    Object.keys(d.results).forEach(function (mid) { try { res[mid] = JSON.parse(d.results[mid]).res; } catch (e) {} });
+    out.sessions = parseAll(d.sessions).sort(byCreated);
+    out.sessions.forEach(function (s) {
       if (!Array.isArray(s.rounds)) s.rounds = [];
       sessionMatches(s).forEach(function (m) { m.res = res[m.id] || null; });
     });
-    var rules = null;
-    try { rules = JSON.parse(docs.config).rules; } catch (e) {}
-    data.rules = { win: num(rules && rules.win, DEFAULT_RULES.win), draw: num(rules && rules.draw, DEFAULT_RULES.draw), loss: num(rules && rules.loss, DEFAULT_RULES.loss) };
-    if (!data.seasons.some(function (s) { return s.id === data.curSeason; })) {
-      data.curSeason = data.seasons.length ? data.seasons[data.seasons.length - 1].id : '';
-    }
-    if (!firstSync) { firstSync = true; filt = data.curSeason || 'all'; }
-    else if (filt !== 'all' && !data.seasons.some(function (s) { return s.id === filt; })) filt = data.curSeason || 'all';
+    var cfg = null;
+    try { cfg = JSON.parse(d.config); } catch (e) {}
+    out.name = cfg && typeof cfg.name === 'string' ? cfg.name : '';
+    out.rules = normRules(cfg && cfg.rules);
+    return out;
+  }
+
+  function rebuild() {
+    var b = buildFromDocs(docs);
+    data.players = b.players;
+    data.sessions = b.sessions;
+    data.rules = b.rules;
+    data.name = b.name || communityName(prefs.code);
+    if (b.name) { rememberCommunity(prefs.code, b.name); savePrefs(); }
     base = serialize();
   }
 
@@ -612,83 +681,77 @@ button, input, select { font: inherit; color: inherit; }
     setTimeout(function () { if (!isTyping()) { pendingRender = false; render(); } }, 80);
   });
 
-  function stopSync() { unsubs.forEach(function (u) { try { u(); } catch (e) {} }); unsubs = []; got = {}; }
+  function stopSync() {
+    syncTok++;
+    unsubs.forEach(function (u) { try { u(); } catch (e) {} });
+    unsubs = []; got = {}; base = null; pendingRender = false;
+  }
 
-  function startSync() {
+  function errText(e) {
+    var code = e && e.code;
+    if (code === 'auth/operation-not-allowed' || code === 'auth/admin-restricted-operation') return 'Falta activar el acceso anónimo en Firebase (Authentication, método Anónimo).';
+    if (code === 'permission-denied') return 'Firebase no dejó entrar. Revisa que las reglas nuevas estén publicadas en Firebase.';
+    return 'No se pudo conectar con el servidor. Revisa tu conexión. (' + (code || (e && e.message) || 'error') + ')';
+  }
+
+  // Conexión con Firebase: solo se abre cuando se usa una comunidad.
+  function ensureAuth() {
+    if (authP) return authP;
+    authP = new Promise(function (resolve, reject) {
+      if (typeof firebase === 'undefined') { authP = null; reject(new Error('Firebase no cargó')); return; }
+      try {
+        if (!fbReady) {
+          if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+          auth = firebase.auth(); db = firebase.firestore();
+          try { db.enablePersistence({ synchronizeTabs: true }).catch(function () {}); } catch (e) {}
+          fbReady = true;
+        }
+      } catch (e) { authP = null; reject(e); return; }
+      var off = auth.onAuthStateChanged(function (u) {
+        if (u) { myUid = u.uid; off(); resolve(u); }
+        else auth.signInAnonymously().catch(function (e) { authP = null; off(); reject(e); });
+      });
+    });
+    return authP;
+  }
+
+  function startSync(code) {
     stopSync();
-    appState = 'loading'; render();
-    var failed = false;
+    var tok = ++syncTok, failed = false;
+    docs = { players: {}, sessions: {}, results: {}, config: null };
     function onErr(e) {
-      if (failed) return;
+      if (tok !== syncTok || failed) return;
       failed = true; stopSync();
-      if (e && e.code === 'permission-denied') { appState = 'code'; gateMsg = 'Este teléfono ya no tiene acceso al grupo. Escribe el código otra vez.'; }
-      else { appState = 'error'; gateMsg = 'No se pudo conectar con el servidor. Revisa tu conexión. (' + ((e && (e.code || e.message)) || 'error') + ')'; }
-      render();
+      appState = 'error'; gateMsg = errText(e); render();
     }
+    var cd = cdoc(code);
     COLLS.forEach(function (c) {
-      unsubs.push(db.collection(c).onSnapshot(function (snap) {
+      unsubs.push(cd.collection(c).onSnapshot(function (snap) {
+        if (tok !== syncTok) return;
         var m = {};
         snap.forEach(function (d) { var x = d.data(); if (x && typeof x.j === 'string') m[d.id] = x.j; });
         docs[c] = m; got[c] = true; onRemote();
       }, onErr));
     });
-    unsubs.push(db.collection('config').doc('main').onSnapshot(function (d) {
+    unsubs.push(cd.collection('config').doc('main').onSnapshot(function (d) {
+      if (tok !== syncTok) return;
       var x = d.exists ? d.data() : null;
       docs.config = x && typeof x.j === 'string' ? x.j : null; got.config = true; onRemote();
     }, onErr));
   }
 
-  function submitCode(code) {
-    code = (code || '').trim();
-    if (!code) { gateMsg = 'Escribe el código del grupo.'; render(); return; }
-    codeBusy = true; gateMsg = ''; render();
-    db.collection('members').doc(myUid).set({ code: code, joined: firebase.firestore.FieldValue.serverTimestamp() })
-      .then(function () { codeBusy = false; codeVal = ''; startSync(); })
-      .catch(function (e) {
-        codeBusy = false; appState = 'code';
-        gateMsg = e && e.code === 'permission-denied' ? 'Código incorrecto. Pídelo a quien administra el grupo.' : 'No se pudo verificar el código. (' + ((e && (e.code || e.message)) || 'error') + ')';
-        render();
-      });
-  }
-
-  function gateErr(e) {
-    var code = e && e.code;
-    appState = 'error';
-    if (code === 'auth/operation-not-allowed' || code === 'auth/admin-restricted-operation') gateMsg = 'Falta activar el acceso anónimo en Firebase (Authentication, método Anónimo).';
-    else gateMsg = 'No se pudo conectar con el servidor. Revisa tu conexión. (' + (code || (e && e.message) || 'error') + ')';
-    render();
-  }
-
-  function boot() {
-    try {
-      firebase.initializeApp(FIREBASE_CONFIG);
-      auth = firebase.auth(); db = firebase.firestore();
-    } catch (e) { gateErr(e); return; }
-    try { db.enablePersistence({ synchronizeTabs: true }).catch(function () {}); } catch (e) {}
-    auth.onAuthStateChanged(function (u) {
-      if (!u) { auth.signInAnonymously().catch(gateErr); return; }
-      if (started) return;
-      started = true; myUid = u.uid;
-      db.collection('members').doc(u.uid).get().then(function (snap) {
-        if (snap.exists) startSync(); else { appState = 'code'; render(); }
-      }).catch(function (e) { started = false; gateErr(e); });
-    });
-  }
-
-
-  var VIEWS = ['ranking', 'nuevo', 'juegos', 'jugadores'];
+  var VIEWS = ['ranking', 'nuevo', 'juegos', 'jugadores', 'comunidad'];
   var main = document.getElementById('main');
   var confirmSess = false;
   var renaming = false;
+  var renamingCom = false;
   var editing = null;
   var scrollToRound = null;
   var confirmRound = null;
-  var seasonEdit = null;
-  var seasonNew = '';
-  var nsName = '';
   var GENDER = { H: 'Hombre', M: 'Mujer' };
   var CATS = { amigos: 'Amigos', trabajo: 'Trabajo', externo: 'Externo' };
-  var pf = { main: { name: '', gender: '', cat: '' }, quick: { name: '', gender: '', cat: '' }, edit: null };
+  var pf = freshPf();
+  function freshPf() { return { main: { name: '', gender: '', cat: '' }, quick: { name: '', gender: '', cat: '' }, edit: null }; }
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -716,14 +779,14 @@ button, input, select { font: inherit; color: inherit; }
     if (h.indexOf('jornada-') === 0) return { v: 'jornada', sid: h.slice(8) };
     return { v: VIEWS.indexOf(h) >= 0 ? h : 'ranking' };
   }
+  function go(h) { if (location.hash.replace('#', '') !== h) location.hash = h; }
   function findSession(id) {
     for (var i = 0; i < data.sessions.length; i++) if (data.sessions[i].id === id) return data.sessions[i];
     return null;
   }
-  function playedGames(seasonId) {
+  function playedGames() {
     var out = [];
     data.sessions.forEach(function (s) {
-      if (seasonId && seasonId !== 'all' && s.seasonId !== seasonId) return;
       sessionMatches(s).forEach(function (m) {
         if (m.res) out.push({ id: m.id, date: s.date, a: m.a, b: m.b, sets: m.res.sets, pts: m.res.pts });
       });
@@ -753,14 +816,30 @@ button, input, select { font: inherit; color: inherit; }
     tt = setTimeout(function () { t.classList.remove('on'); }, 2600);
   }
 
+  function copyText(t) {
+    function fallback() {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return fallback(); });
+    }
+    return Promise.resolve(fallback());
+  }
+
   var draft = freshDraft();
   function freshDraft() {
-    return { seasonId: data.curSeason, mode: 'sets', pairing: 'individual', target: 16, nPairs: 2, pairs: [['', ''], ['', '']], nPlayers: 8, chosen: [], rounds: '', name: '', date: todayStr() };
+    return { mode: 'sets', pairing: 'individual', target: 16, nPairs: 2, pairs: [['', ''], ['', '']], nPlayers: 8, chosen: [], rounds: '', name: '', date: todayStr() };
   }
   function pairCount() { return draft.mode === 'sets' ? 2 : (draft.pairing === 'fixed' ? draft.nPairs : 0); }
   function normalizeDraft() {
     var ids = sortedPlayers().map(function (p) { return p.id; });
-    if (!data.seasons.some(function (x) { return x.id === draft.seasonId; })) draft.seasonId = data.curSeason;
     draft.nPairs = Math.max(2, Math.min(8, draft.nPairs));
     draft.nPlayers = Math.max(4, Math.min(16, draft.nPlayers));
     var need = Math.max(2, pairCount());
@@ -782,6 +861,167 @@ button, input, select { font: inherit; color: inherit; }
     return txt;
   }
 
+  /* ---------- Pantalla de inicio (elegir comunidad) ---------- */
+  var pick = freshPick();
+  function freshPick() { return { view: 'home', name: '', code: '', season: 'all', busy: false, msg: '', forget: null }; }
+  var legacy = { checked: false, avail: false, loading: false, data: null };
+
+  function resetUi() {
+    editing = null; renaming = false; renamingCom = false; confirmSess = false; confirmRound = null;
+    pf = freshPf(); draft = freshDraft(); pendingRender = false;
+  }
+
+  function enterLocal() {
+    stopSync(); resetUi();
+    prefs.mode = 'local'; prefs.code = ''; savePrefs();
+    loadLocal();
+    appState = 'ready'; render();
+  }
+  function enterCloud(code, name) {
+    stopSync(); resetUi();
+    data = emptyData();
+    prefs.mode = 'cloud'; prefs.code = code; rememberCommunity(code, name); savePrefs();
+    data.name = name || communityName(code);
+    appState = 'loading'; render();
+    var tok = syncTok;
+    ensureAuth().then(function () { if (tok === syncTok) startSync(code); })
+      .catch(function (e) { if (tok !== syncTok) return; appState = 'error'; gateMsg = errText(e); render(); });
+  }
+  function leaveCommunity() {
+    stopSync(); resetUi();
+    prefs.mode = null; prefs.code = ''; savePrefs();
+    data = emptyData(); pick = freshPick();
+    appState = 'pick'; render();
+    detectLegacy();
+  }
+
+  // Un código nuevo que no exista todavía.
+  function freeCode(n) {
+    var c = newCode();
+    return cdoc(c).collection('config').doc('main').get().then(function (s) {
+      if (!s.exists) return c;
+      if (n > 4) throw new Error('No se pudo generar un código');
+      return freeCode(n + 1);
+    });
+  }
+  // Crea la comunidad con su código. Si recibe src (datos locales o del grupo anterior), los copia dentro.
+  function createCommunity(name, src) {
+    pick.busy = true; pick.msg = ''; render();
+    var code;
+    ensureAuth().then(function () { return freeCode(0); }).then(function (c) {
+      code = c;
+      var out = serializeData({ name: name, players: src ? src.players : [], sessions: src ? src.sessions : [], rules: src ? src.rules : normRules(null) });
+      var ops = [{ c: 'config', id: 'main', j: out.config }], cd = cdoc(code), jobs = [];
+      COLLS.forEach(function (k) { Object.keys(out[k]).forEach(function (id) { ops.push({ c: k, id: id, j: out[k][id] }); }); });
+      for (var i = 0; i < ops.length; i += 400) {
+        var b = db.batch();
+        ops.slice(i, i + 400).forEach(function (o) { b.set(cd.collection(o.c).doc(o.id), { j: o.j }); });
+        jobs.push(b.commit());
+      }
+      return Promise.all(jobs);
+    }).then(function () {
+      pick = freshPick();
+      enterCloud(code, name); go('comunidad');
+      toast('Comunidad creada');
+    }).catch(function (e) { pick.busy = false; pick.msg = errText(e); render(); });
+  }
+  function joinCommunity() {
+    var c = cleanCode(pick.code);
+    if (!validCode(c)) { pick.msg = 'El código tiene 10 letras y números. Revisa que esté completo.'; render(); return; }
+    pick.busy = true; pick.msg = ''; render();
+    ensureAuth().then(function () { return cdoc(c).collection('config').doc('main').get(); }).then(function (snap) {
+      if (!snap.exists) { pick.busy = false; pick.msg = 'No existe ninguna comunidad con ese código. Revísalo con quien te lo pasó.'; render(); return; }
+      var nm = '';
+      try { nm = JSON.parse(snap.data().j).name; } catch (e) {}
+      pick = freshPick();
+      enterCloud(c, nm || 'Comunidad'); go('ranking');
+    }).catch(function (e) { pick.busy = false; pick.msg = errText(e); render(); });
+  }
+
+  // Si este teléfono ya entró al grupo anterior (con el código viejo), ofrece pasar esos datos a una comunidad.
+  function detectLegacy() {
+    if (legacy.checked || typeof firebase === 'undefined') return;
+    legacy.checked = true;
+    ensureAuth().then(function () { return db.collection('members').doc(myUid).get(); }).then(function (s) {
+      if (s.exists) { legacy.avail = true; if (appState === 'pick') render(); }
+    }).catch(function () { legacy.checked = false; });
+  }
+  function loadLegacy() {
+    legacy.loading = true; render();
+    var d = { players: {}, seasons: {}, sessions: {}, results: {}, config: null };
+    var jobs = ['players', 'seasons', 'sessions', 'results'].map(function (c) {
+      return db.collection(c).get().then(function (snap) {
+        snap.forEach(function (x) { var v = x.data(); if (v && typeof v.j === 'string') d[c][x.id] = v.j; });
+      });
+    });
+    jobs.push(db.collection('config').doc('main').get().then(function (s) {
+      var v = s.exists ? s.data() : null; d.config = v && typeof v.j === 'string' ? v.j : null;
+    }));
+    Promise.all(jobs).then(function () { legacy.data = buildFromDocs(d); legacy.loading = false; render(); })
+      .catch(function (e) { legacy.loading = false; pick.msg = errText(e); pick.view = 'home'; render(); });
+  }
+  function legacySessions(sel) {
+    return legacy.data.sessions.filter(function (s) { return sel === 'all' || s.seasonId === sel; });
+  }
+
+  function gateHtml() {
+    if (appState === 'pick') return pickHtml();
+    if (appState === 'error') {
+      return '<div class="empty"><p>' + esc(gateMsg) + '</p><div class="inline"><button class="btn" data-act="retry">Reintentar</button><button class="btn ghost" data-act="leave">Cambiar de comunidad</button></div></div>';
+    }
+    return '<div class="empty"><p>Conectando…</p><button class="btn ghost small" data-act="leave">Cambiar de comunidad</button></div>';
+  }
+
+  function savedRowsHtml() {
+    return '<ul class="plist" style="margin-top:6px">' + prefs.joined.map(function (j) {
+      if (pick.forget === j.code) {
+        return '<li class="prow editing"><div class="confirm">¿Quitar «' + esc(j.name) + '» de este teléfono? Para volver a entrar necesitarás el código ' + esc(fmtCode(j.code)) + '. ' +
+          '<button class="btn small danger" data-act="pk-forget-yes" data-id="' + j.code + '">Sí, quitar</button><button class="btn small ghost" data-act="pk-forget-no">No</button></div></li>';
+      }
+      return '<li class="prow"><div class="who"><span class="nm">' + esc(j.name) + '</span><span class="sub">Código ' + esc(fmtCode(j.code)) + '</span></div><div class="pacts">' +
+        '<button class="btn small" data-act="pk-enter" data-id="' + j.code + '">Entrar</button>' +
+        '<button class="btn small ghost" data-act="pk-forget" data-id="' + j.code + '">Quitar</button></div></li>';
+    }).join('') + '</ul>';
+  }
+
+  function pickHtml() {
+    var p = pick, html = '';
+    var back = '<button type="button" class="back" data-act="pk-back">← Volver</button>';
+    if (p.view === 'create') {
+      return back + '<form class="form" id="create-form" novalidate><div class="vh"><h2>Crear comunidad</h2><p>Se genera un código único. Quien lo escriba verá y registrará los mismos juegos que tú.</p></div>' +
+        '<label class="field" for="pk-name"><span>Nombre de la comunidad</span><input id="pk-name" type="text" maxlength="40" data-pkname value="' + esc(p.name) + '" placeholder="Ej. Los RompeVidrios" autocomplete="off"></label>' +
+        '<p class="err" role="alert">' + esc(p.msg) + '</p><button class="btn block" type="submit"' + (p.busy ? ' disabled' : '') + '>' + (p.busy ? 'Creando…' : 'Crear comunidad') + '</button></form>';
+    }
+    if (p.view === 'join') {
+      return back + '<form class="form" id="join-form" novalidate><div class="vh"><h2>Unirme con un código</h2><p>Escribe el código que te pasó quien creó la comunidad.</p></div>' +
+        '<label class="field" for="pk-code"><span>Código de la comunidad</span><input id="pk-code" type="text" data-pkcode value="' + esc(p.code) + '" placeholder="XXXXX-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:.1em"></label>' +
+        '<p class="err" role="alert">' + esc(p.msg) + '</p><button class="btn block" type="submit"' + (p.busy ? ' disabled' : '') + '>' + (p.busy ? 'Verificando…' : 'Entrar a la comunidad') + '</button></form>';
+    }
+    if (p.view === 'migrate') {
+      if (legacy.loading || !legacy.data) return back + '<div class="empty"><p>Leyendo los datos del grupo anterior…</p></div>';
+      var L = legacy.data, sel = p.season, list = legacySessions(sel), games = 0;
+      list.forEach(function (s) { games += sessionProgress(s).done; });
+      var opts = '<option value="all"' + (sel === 'all' ? ' selected' : '') + '>Todas las temporadas juntas</option>' + L.seasons.map(function (s) {
+        return '<option value="' + esc(s.id) + '"' + (sel === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>';
+      }).join('');
+      return back + '<form class="form" id="mig-form" novalidate><div class="vh"><h2>Pasar datos anteriores</h2><p>Copia los datos del grupo anterior a una comunidad nueva. Lo anterior no se borra.</p></div>' +
+        '<label class="field" for="pk-season"><span>¿Qué temporada pasar?</span><select id="pk-season" data-pkseason>' + opts + '</select></label>' +
+        '<p class="help">Se copian ' + L.players.length + (L.players.length === 1 ? ' jugador' : ' jugadores') + ' y ' + list.length + (list.length === 1 ? ' jornada' : ' jornadas') + ' (' + games + (games === 1 ? ' juego' : ' juegos') + ' con resultado). Puedes repetir esto con otra temporada para crear otra comunidad.</p>' +
+        '<label class="field" for="pk-name"><span>Nombre de la comunidad nueva</span><input id="pk-name" type="text" maxlength="40" data-pkname value="' + esc(p.name) + '" placeholder="Ej. Los RompeVidrios" autocomplete="off"></label>' +
+        '<p class="err" role="alert">' + esc(p.msg) + '</p><button class="btn block" type="submit"' + (p.busy ? ' disabled' : '') + '>' + (p.busy ? 'Copiando…' : 'Crear comunidad con estos datos') + '</button></form>';
+    }
+    html = '<div class="vh"><h2>Bienvenido</h2><p>¿Cómo quieres usar Crack Padel?</p></div>';
+    if (prefs.joined.length) html += '<h3 class="sec" style="margin-top:0">Tus comunidades</h3>' + savedRowsHtml() + '<h3 class="sec">Otras opciones</h3>';
+    html += '<div class="opts">' +
+      '<button class="opt" data-act="pk-view" data-id="create"><strong>Crear una comunidad</strong><span>Se genera un código para compartir. Todos los que entren ven los mismos juegos y el mismo ranking.</span></button>' +
+      '<button class="opt" data-act="pk-view" data-id="join"><strong>Unirme con un código</strong><span>Para entrar a la comunidad de otra persona.</span></button>' +
+      '<button class="opt" data-act="pk-local"><strong>Usar solo en este teléfono</strong><span>Modo local: los datos no se comparten con nadie. Después puedes convertirlo en comunidad.</span></button>';
+    if (legacy.avail) html += '<button class="opt" data-act="pk-view" data-id="migrate"><strong>Pasar datos del grupo anterior</strong><span>Copia los jugadores y juegos que ya tenías a una comunidad nueva.</span></button>';
+    html += '</div>';
+    if (p.msg) html += '<p class="err" role="alert" style="margin-top:12px">' + esc(p.msg) + '</p>';
+    return html;
+  }
+
   /* ---------- Vistas ---------- */
   function theadHtml(first, last, noe) {
     var cols = ['#', first, 'PJ', 'G'].concat(noe ? [] : ['E']).concat(['P', last]);
@@ -796,67 +1036,14 @@ button, input, select { font: inherit; color: inherit; }
     }).join('') + '</ol>';
   }
 
-  /* ---------- Temporadas ---------- */
-  function seasonName(id) {
-    for (var i = 0; i < data.seasons.length; i++) if (data.seasons[i].id === id) return data.seasons[i].name;
-    return 'Sin temporada';
-  }
-  function seasonCount(id) { return data.sessions.filter(function (s) { return s.seasonId === id; }).length; }
-  function seasonOpts(sel, withAll) {
-    if (!data.seasons.length && !withAll) return '<option value="">Crea una temporada primero</option>';
-    return (withAll ? '<option value="all"' + (sel === 'all' ? ' selected' : '') + '>Todas las temporadas</option>' : '') +
-      data.seasons.map(function (s) { return '<option value="' + s.id + '"' + (sel === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>'; }).join('');
-  }
-  function seasonFilterHtml() {
-    return '<label class="field" for="sfilter" style="margin-bottom:14px"><span>Temporada</span><select id="sfilter" data-sfilter>' + seasonOpts(filt, true) + '</select></label>';
-  }
-  function addSeason(raw) {
-    var name = raw.trim().replace(/\s+/g, ' ').slice(0, 40);
-    if (!name) return { error: 'Escribe el nombre de la temporada.' };
-    if (data.seasons.some(function (s) { return s.name.toLowerCase() === name.toLowerCase(); })) return { error: 'Ya existe una temporada con ese nombre.' };
-    var s = { id: uid(), created: Date.now(), name: name };
-    data.seasons.push(s);
-    persist();
-    return { id: s.id, name: name };
-  }
-  function saveSeasonEdit() {
-    if (!seasonEdit) return;
-    var name = seasonEdit.name.trim().replace(/\s+/g, ' ').slice(0, 40);
-    if (!name) { toast('Escribe el nombre de la temporada.'); return; }
-    if (data.seasons.some(function (s) { return s.id !== seasonEdit.id && s.name.toLowerCase() === name.toLowerCase(); })) { toast('Ya existe una temporada con ese nombre.'); return; }
-    data.seasons.forEach(function (s) { if (s.id === seasonEdit.id) s.name = name; });
-    seasonEdit = null;
-    persist(); render(); toast('Temporada actualizada');
-  }
-  function seasonsHtml() {
-    var rows = data.seasons.map(function (s) {
-      if (seasonEdit && seasonEdit.id === s.id) {
-        return '<li class="prow editing"><form class="inline" id="sedit-form" novalidate><input id="sedit-name" type="text" maxlength="40" data-sedit value="' + esc(seasonEdit.name) + '" aria-label="Nombre de la temporada" autocomplete="off">' +
-          '<button class="btn small" type="submit">Guardar</button><button class="btn small ghost" type="button" data-act="s-cancel">Cancelar</button></form></li>';
-      }
-      var n = seasonCount(s.id);
-      return '<li class="prow"><div class="who"><span class="nm">' + esc(s.name) + '</span><span class="sub">' + n + (n === 1 ? ' jornada' : ' jornadas') + '</span></div>' +
-        '<div class="pacts"><button class="btn small ghost" data-act="s-edit" data-id="' + s.id + '">Editar</button></div></li>';
-    }).join('');
-    return '<section class="rules"><div class="vh"><h2>Temporadas</h2><p>Cada temporada tiene su propio ranking. Se elige al crear una jornada.</p></div>' +
-      '<ul class="plist" style="margin-top:0">' + rows + '</ul>' +
-      '<form class="inline" id="season-form" novalidate style="margin-top:12px"><input id="season-new" type="text" maxlength="40" data-snew placeholder="Nueva temporada" value="' + esc(seasonNew) + '" autocomplete="off" aria-label="Nueva temporada"><button class="btn" type="submit">Agregar</button></form></section>';
-  }
-  function seasonPick() {
-    return '<div class="group"><label class="field" for="dseason"><span>Temporada de esta jornada</span><select id="dseason" data-dseason>' + seasonOpts(draft.seasonId, false) + '</select></label>' +
-      '<div class="inline"><input id="nseason-name" type="text" maxlength="40" data-nsname placeholder="¿Otra temporada? Escribe el nombre" value="' + esc(nsName) + '" autocomplete="off" aria-label="Nombre de la nueva temporada">' +
-      '<button class="btn ghost" type="button" data-act="nseason-add">Crear</button></div></div>';
-  }
-
   function viewRanking() {
     var r = data.rules;
-    var head = '<div class="vh"><h2>Ranking</h2><p>Victoria ' + r.win + ' · Empate ' + r.draw + ' · Derrota ' + r.loss + ' pts</p></div>' + seasonFilterHtml();
-    var banner = '';
+    var head = '<div class="vh"><h2>Ranking</h2><p>Victoria ' + r.win + ' · Empate ' + r.draw + ' · Derrota ' + r.loss + ' pts</p></div>';
     var activeList = sortedPlayers();
     if (!activeList.length) {
-      return head + banner + '<div class="empty"><p>Aún no hay jugadores activos en el ranking.</p><a href="#jugadores">Ir a Jugadores</a></div>';
+      return head + '<div class="empty"><p>Aún no hay jugadores activos en el ranking.</p><a href="#jugadores">Ir a Jugadores</a></div>';
     }
-    var rk = computeRanking(activeList, playedGames(filt), data.rules);
+    var rk = computeRanking(activeList, playedGames(), data.rules);
     var rows = rk.map(function (s, i) {
       return '<li class="row pa' + (i === 0 && s.pj ? ' lead' : '') + '">' +
         '<span class="pos">' + (i + 1) + '</span>' +
@@ -864,10 +1051,10 @@ button, input, select { font: inherit; color: inherit; }
         '<span class="n">' + s.pj + '</span><span class="n">' + s.pg + '</span><span class="n">' + s.pe + '</span><span class="n">' + s.pp + '</span>' +
         '<span class="pts">' + s.pts + '</span><span class="n">' + (s.pa ? s.pa : '–') + '</span></li>';
     }).join('');
-    return head + banner +
+    return head +
       '<div class="thead pa" aria-hidden="true"><span>#</span><span>Jugador</span><span>PJ</span><span>G</span><span>E</span><span>P</span><span>Pts</span><span>PA</span></div>' +
       '<ol class="rows">' + rows + '</ol>' +
-      '<p class="legend">PJ jugados · G ganados · E empatados · P perdidos · Pts puntos del ranking · PA puntos acumulados en Americano (parejas fijas e individual)</p>' + seasonsHtml();
+      '<p class="legend">PJ jugados · G ganados · E empatados · P perdidos · Pts puntos del ranking · PA puntos acumulados en Americano (parejas fijas e individual)</p>';
   }
 
   function scoreLines(m) {
@@ -889,14 +1076,13 @@ button, input, select { font: inherit; color: inherit; }
   }
 
   function viewJuegos() {
-    var inSeason = data.sessions.filter(function (s) { return filt === 'all' || s.seasonId === filt; });
-    var n = inSeason.length;
-    var head = '<div class="vh"><h2>Juegos</h2><p>' + n + (n === 1 ? ' jornada' : ' jornadas') + '</p></div>' + seasonFilterHtml();
-    if (!n) return head + '<div class="empty"><p>No hay jornadas en esta temporada.</p><a href="#nuevo">Crear una jornada</a></div>';
-    var js = inSeason.slice().reverse().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    var n = data.sessions.length;
+    var head = '<div class="vh"><h2>Juegos</h2><p>' + n + (n === 1 ? ' jornada' : ' jornadas') + '</p></div>';
+    if (!n) return head + '<div class="empty"><p>Todavía no hay jornadas.</p><a href="#nuevo">Crear una jornada</a></div>';
+    var js = data.sessions.slice().reverse().sort(function (a, b) { return b.date.localeCompare(a.date); });
     return head + '<div class="games">' + js.map(function (s) {
       var p = sessionProgress(s);
-      return '<a class="jrow" href="#jornada-' + s.id + '"><div class="who"><span class="nm">' + esc(sessionTitle(s)) + '</span><span class="sub">' + esc(fmtDate(s.date)) + ' · ' + esc(sessionFormat(s)) + ' · ' + sessionSize(s) + (filt === 'all' ? ' · ' + esc(seasonName(s.seasonId)) : '') + '</span></div>' +
+      return '<a class="jrow" href="#jornada-' + s.id + '"><div class="who"><span class="nm">' + esc(sessionTitle(s)) + '</span><span class="sub">' + esc(fmtDate(s.date)) + ' · ' + esc(sessionFormat(s)) + ' · ' + sessionSize(s) + '</span></div>' +
         '<span class="prog' + (p.done === p.total ? ' done' : '') + '">' + p.done + '/' + p.total + '</span></a>';
     }).join('') + '</div>';
   }
@@ -926,12 +1112,17 @@ button, input, select { font: inherit; color: inherit; }
       segHtml('Género', 'pf-set', [['H', 'Hombre'], ['M', 'Mujer']], st.gender, ex + ' data-f="gender"') +
       segHtml('Clasificación', 'pf-set', [['amigos', 'Amigos'], ['trabajo', 'Trabajo'], ['externo', 'Externo']], st.cat, ex + ' data-f="cat"');
   }
+  // Va dentro del formulario de la jornada, así que no es un <form> aparte (los formularios no se anidan).
+  function quickHtml() {
+    return '<div class="quick" id="quick-box"><h3 class="sec" style="margin:0">¿Falta alguien?</h3>' + playerFields('quick', pf.quick, 'quick') +
+      '<button class="btn block" type="button" data-act="quick-add">Agregar jugador</button></div>';
+  }
 
   function viewNuevo() {
     normalizeDraft();
     var head = '<div class="vh"><h2>Nueva jornada</h2><p>Elige el formato y la app genera los juegos rotados.</p></div>';
     var isSets = draft.mode === 'sets', fixed = draft.pairing === 'fixed';
-    var html = head + '<form class="form" id="gen-form" novalidate>' + seasonPick();
+    var html = head + '<form class="form" id="gen-form" novalidate>';
     html += segHtml('Formato', 'mode', [['sets', 'Por sets'], ['americano', 'Americano']], draft.mode);
     if (!isSets) {
       html += segHtml('Modalidad', 'pairing', [['individual', 'Individual'], ['fixed', 'Parejas fijas']], draft.pairing);
@@ -942,6 +1133,7 @@ button, input, select { font: inherit; color: inherit; }
       for (var i = 0; i < pairCount(); i++) {
         html += '<div class="group"><h3><i class="tag' + (i % 2 ? ' b' : '') + '"></i>Pareja ' + (i + 1) + '</h3>' + pairSelect(i, 0) + pairSelect(i, 1) + '</div>';
       }
+      html += quickHtml();
     } else {
       html += '<label class="field" for="nplayers"><span>Jugadores que juegan hoy</span><select id="nplayers" data-n="players">' + countOptions(4, 16, draft.nPlayers, 'jugadores') + '</select></label>';
       var full = draft.chosen.length >= draft.nPlayers;
@@ -950,13 +1142,13 @@ button, input, select { font: inherit; color: inherit; }
         return '<button type="button" class="chip" data-act="chip" data-id="' + p.id + '" aria-pressed="' + on + '"' + (!on && full ? ' disabled' : '') + '>' + esc(p.name) + '</button>';
       }).join('') + '</div><p class="count">Elegidos ' + draft.chosen.length + ' de ' + draft.nPlayers +
         (sortedPlayers().length < draft.nPlayers ? '. Solo tienes ' + sortedPlayers().length + ' jugadores activos: agrega los que faltan abajo.' : '') + '</p></div>';
+      html += quickHtml();
       html += '<label class="field" for="nrounds"><span>Rondas (déjalo vacío para usar las recomendadas: ' + defaultRounds(draft.nPlayers) + ')</span><input id="nrounds" type="number" inputmode="numeric" min="1" max="30" data-rounds value="' + esc(draft.rounds) + '" placeholder="' + defaultRounds(draft.nPlayers) + '"></label>';
     }
     html += '<label class="field" for="nname"><span>Nombre de la jornada (opcional)</span><input id="nname" type="text" maxlength="40" data-name value="' + esc(draft.name) + '" placeholder="Ej. Birria de amigos 1" autocomplete="off"></label>' +
       '<label class="field" for="ndate"><span>Fecha</span><input id="ndate" type="date" data-date value="' + esc(draft.date) + '"></label>' +
       '<p class="plan" id="plan">' + esc(planInfo()) + '</p><p class="err" id="err" role="alert"></p>' +
-      '<button class="btn block" type="submit" id="gen-btn">Generar juegos</button></form>' +
-      '<form class="quick form" id="quick-form" novalidate><h3 class="sec" style="margin:0">¿Falta alguien?</h3>' + playerFields('quick', pf.quick, 'quick') + '<button class="btn block" type="submit">Agregar jugador</button></form>';
+      '<button class="btn block" type="submit" id="gen-btn">Generar juegos</button></form>';
     return html;
   }
 
@@ -1016,8 +1208,7 @@ button, input, select { font: inherit; color: inherit; }
     } else {
       html += '<div class="titlebar"><div class="vh"><h2>' + esc(sessionTitle(s)) + '</h2></div><button class="btn small ghost" data-act="rename">Editar nombre</button></div>';
     }
-    html += '<div class="vh"><p>' + esc(sessionFormat(s)) + ' · ' + esc(fmtDate(s.date)) + ' · ' + sessionSize(s) + ' · ' + p.done + ' de ' + p.total + ' jugados</p></div>' +
-      '<label class="field" for="jseason" style="margin-bottom:6px"><span>Temporada</span><select id="jseason" data-jseason>' + seasonOpts(s.seasonId, false) + '</select></label>';
+    html += '<div class="vh"><p>' + esc(sessionFormat(s)) + ' · ' + esc(fmtDate(s.date)) + ' · ' + sessionSize(s) + ' · ' + p.done + ' de ' + p.total + ' jugados</p></div>';
     if (s.mode === 'americano') {
       var fixed = s.pairing === 'fixed';
       var st = fixed ? americanoPairStandings(s, nameOf) : americanoStandings(s, nameOf);
@@ -1087,24 +1278,38 @@ button, input, select { font: inherit; color: inherit; }
       '<label class="field" for="r-loss"><span>Derrota</span><input id="r-loss" type="number" inputmode="numeric" min="0" max="20" value="' + r.loss + '"></label></div></section>';
   }
 
-  function gateHtml() {
-    if (appState === 'code') {
-      return '<form class="form" id="code-form" novalidate><div class="vh"><h2>Código del grupo</h2><p>Escribe el código que te dio quien administra el grupo. Solo se pide una vez en cada teléfono.</p></div>' +
-        '<label class="field" for="code"><span>Código</span><input id="code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-code value="' + esc(codeVal) + '"></label>' +
-        '<p class="err" role="alert">' + esc(gateMsg) + '</p>' +
-        '<button class="btn block" type="submit"' + (codeBusy ? ' disabled' : '') + '>' + (codeBusy ? 'Verificando…' : 'Entrar al grupo') + '</button></form>';
+  function viewComunidad() {
+    var html = '', ver = '<p class="ver">Crack Padel · versión ' + esc(APP_VERSION) + '</p>';
+    if (prefs.mode === 'local') {
+      html = '<div class="vh"><h2>Comunidad</h2><p>Modo local</p></div>' +
+        '<p class="help">Estás usando la app solo en este teléfono. Nadie más ve tus jugadores ni tus juegos. Si quieres compartirlos, crea una comunidad con tus datos actuales: se genera un código y lo pasas a tu grupo.</p>' +
+        '<form class="form" id="conv-form" novalidate style="margin-top:16px"><label class="field" for="pk-name"><span>Nombre de la comunidad</span><input id="pk-name" type="text" maxlength="40" data-pkname value="' + esc(pick.name) + '" placeholder="Ej. Los RompeVidrios" autocomplete="off"></label>' +
+        '<p class="err" role="alert">' + esc(pick.msg) + '</p><button class="btn block" type="submit"' + (pick.busy ? ' disabled' : '') + '>' + (pick.busy ? 'Creando…' : 'Crear comunidad con mis datos') + '</button></form>' +
+        '<p class="note">Tus datos locales se quedan guardados en este teléfono.</p>' +
+        '<div class="mact" style="justify-content:flex-start;margin-top:22px"><button class="btn ghost" data-act="leave">Cambiar de comunidad</button></div>';
+      return html + ver;
     }
-    if (appState === 'error') {
-      return '<div class="empty"><p>' + esc(gateMsg) + '</p><button class="btn" data-act="reload">Reintentar</button></div>';
+    html = '<div class="vh"><h2>Comunidad</h2><p>Datos compartidos</p></div>';
+    if (renamingCom) {
+      html += '<form class="inline" id="rencom-form" novalidate style="margin-bottom:14px"><input id="rencom" type="text" maxlength="40" value="' + esc(data.name) + '" aria-label="Nombre de la comunidad" autocomplete="off">' +
+        '<button class="btn" type="submit">Guardar</button><button class="btn ghost" type="button" data-act="rencom-cancel">Cancelar</button></form>';
+    } else {
+      html += '<div class="titlebar" style="margin-bottom:14px"><div class="who"><span class="sub">Nombre</span><span class="nm wrap" style="font-size:20px">' + esc(data.name || 'Comunidad') + '</span></div><button class="btn small ghost" data-act="rencom">Editar nombre</button></div>';
     }
-    return '<div class="empty"><p>Conectando…</p></div>';
+    html += '<div class="codebox"><span class="eyebrow">Código de la comunidad</span><span class="code" id="the-code">' + esc(fmtCode(prefs.code)) + '</span>' +
+      '<div class="acts"><button class="btn small" data-act="code-copy">Copiar código</button><button class="btn small ghost" data-act="code-share">Compartir</button></div></div>' +
+      '<p class="help" style="margin-top:12px">Pásale este código a quien quieras que vea y registre los juegos. Quien lo tenga puede ver y editar todo, así que compártelo solo con tu grupo.</p>' +
+      '<div class="mact" style="justify-content:flex-start;margin-top:22px"><button class="btn ghost" data-act="leave">Cambiar de comunidad</button></div>' +
+      '<p class="note">Al salir no pierdes nada: la comunidad queda guardada en la lista de este teléfono para volver a entrar.</p>';
+    return html + ver;
   }
 
   function render() {
-    var bar = document.getElementById('bar');
+    var bar = document.getElementById('bar'), eb = document.getElementById('eyebrow');
     if (appState !== 'ready') {
       main.innerHTML = gateHtml();
       if (bar) bar.hidden = true;
+      if (eb) eb.textContent = appState === 'pick' ? 'Inicio' : (appState === 'error' ? 'Sin conexión' : 'Conectando…');
       return;
     }
     if (bar) bar.hidden = false;
@@ -1113,10 +1318,10 @@ button, input, select { font: inherit; color: inherit; }
     else if (r.v === 'nuevo') html = viewNuevo();
     else if (r.v === 'juegos') html = viewJuegos();
     else if (r.v === 'jornada') html = viewJornada(r.sid);
+    else if (r.v === 'comunidad') html = viewComunidad();
     else html = viewJugadores();
     main.innerHTML = html;
-    var eb = document.getElementById('eyebrow');
-    if (eb) eb.textContent = filt === 'all' ? 'Todas las temporadas' : seasonName(filt);
+    if (eb) eb.textContent = prefs.mode === 'local' ? 'Modo local · solo en este teléfono' : (data.name || 'Comunidad');
     var active = r.v === 'jornada' ? 'juegos' : r.v;
     document.querySelectorAll('.tab').forEach(function (a) {
       if (a.getAttribute('data-v') === active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -1131,9 +1336,8 @@ button, input, select { font: inherit; color: inherit; }
   /* ---------- Acciones ---------- */
   function generateSession() {
     var err = document.getElementById('err');
-    if (!data.seasons.some(function (x) { return x.id === draft.seasonId; })) { err.textContent = 'Elige la temporada de la jornada.'; return; }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.date)) { err.textContent = 'Elige la fecha de la jornada.'; return; }
-    var s = { id: uid(), created: Date.now(), seasonId: draft.seasonId, date: draft.date, mode: draft.mode, pairing: draft.mode === 'americano' ? draft.pairing : null,
+    var s = { id: uid(), created: Date.now(), date: draft.date, mode: draft.mode, pairing: draft.mode === 'americano' ? draft.pairing : null,
       target: draft.mode === 'americano' ? draft.target : null, name: draft.name.trim().replace(/\s+/g, ' ').slice(0, 40), entrants: [], rounds: [], stats: null };
     var built;
     if (draft.mode === 'sets' || draft.pairing === 'fixed') {
@@ -1159,7 +1363,6 @@ button, input, select { font: inherit; color: inherit; }
     });
     s.initialRounds = s.rounds.length;
     data.sessions.push(s);
-    data.curSeason = s.seasonId; filt = s.seasonId;
     persist();
     var keep = { mode: draft.mode, pairing: draft.pairing, target: draft.target };
     draft = freshDraft(); draft.mode = keep.mode; draft.pairing = keep.pairing; draft.target = keep.target;
@@ -1244,11 +1447,37 @@ button, input, select { font: inherit; color: inherit; }
     persist(); render(); toast('Jugador actualizado');
   }
 
+  function shareCode() {
+    var link = /^https?:/.test(location.protocol) ? location.origin + location.pathname : '';
+    var text = 'Únete a mi comunidad «' + (data.name || 'Crack Padel') + '» en Crack Padel. Código: ' + fmtCode(prefs.code) + (link ? '\n' + link : '');
+    if (navigator.share) {
+      navigator.share({ title: 'Crack Padel', text: text }).catch(function () {});
+    } else {
+      copyText(text).then(function (ok) { toast(ok ? 'Invitación copiada' : 'No se pudo copiar'); });
+    }
+  }
+
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-act]');
     if (!el) return;
     var act = el.getAttribute('data-act'), id = el.getAttribute('data-id');
-    if (act === 'reload') { location.reload(); }
+    if (act === 'retry') { enterCloud(prefs.code, communityName(prefs.code)); }
+    else if (act === 'leave') { leaveCommunity(); }
+    else if (act === 'pk-view') { pick.view = id; pick.msg = ''; if (id === 'migrate' && !legacy.data && !legacy.loading) loadLegacy(); render(); }
+    else if (act === 'pk-back') { pick.view = 'home'; pick.msg = ''; render(); }
+    else if (act === 'pk-local') { enterLocal(); go('ranking'); }
+    else if (act === 'pk-enter') { pick = freshPick(); enterCloud(id, communityName(id)); go('ranking'); }
+    else if (act === 'pk-forget') { pick.forget = id; render(); }
+    else if (act === 'pk-forget-no') { pick.forget = null; render(); }
+    else if (act === 'pk-forget-yes') {
+      prefs.joined = prefs.joined.filter(function (j) { return j.code !== id; });
+      savePrefs(); pick.forget = null; render(); toast('Comunidad quitada de este teléfono');
+    }
+    else if (act === 'code-copy') { copyText(fmtCode(prefs.code)).then(function (ok) { toast(ok ? 'Código copiado' : 'No se pudo copiar'); }); }
+    else if (act === 'code-share') { shareCode(); }
+    else if (act === 'rencom') { renamingCom = true; render(); var rc = document.getElementById('rencom'); if (rc) rc.focus(); }
+    else if (act === 'rencom-cancel') { renamingCom = false; render(); }
+    else if (act === 'quick-add') { addPlayer('quick'); }
     else if (act === 'mode') { draft.mode = id; render(); }
     else if (act === 'pairing') { draft.pairing = id; render(); }
     else if (act === 'target') { draft.target = Number(id); render(); }
@@ -1299,16 +1528,6 @@ button, input, select { font: inherit; color: inherit; }
       data.sessions = data.sessions.filter(function (s) { return s.id !== sid; });
       confirmSess = false; editing = null; persist(); toast('Jornada borrada'); location.hash = 'juegos';
     }
-    else if (act === 's-edit') {
-      var se = data.seasons.filter(function (x) { return x.id === id; })[0];
-      if (se) { seasonEdit = { id: se.id, name: se.name }; render(); var sn = document.getElementById('sedit-name'); if (sn) sn.focus(); }
-    }
-    else if (act === 's-cancel') { seasonEdit = null; render(); }
-    else if (act === 'nseason-add') {
-      var rs2 = addSeason(nsName);
-      if (rs2.error) { toast(rs2.error); }
-      else { draft.seasonId = rs2.id; nsName = ''; render(); toast('Temporada "' + rs2.name + '" creada'); }
-    }
     else if (act === 'p-off' || act === 'p-on') {
       var dp = data.players.filter(function (p) { return p.id === id; })[0];
       if (dp) {
@@ -1323,15 +1542,14 @@ button, input, select { font: inherit; color: inherit; }
   var RULE_IDS = { 'r-win': 'win', 'r-draw': 'draw', 'r-loss': 'loss' };
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (t.hasAttribute('data-sfilter')) {
-      filt = t.value;
-      if (filt !== 'all') { data.curSeason = filt; draft.seasonId = filt; persist(); }
+    if (t.hasAttribute('data-pkseason')) {
+      pick.season = t.value;
+      if (legacy.data) {
+        var sn = '';
+        legacy.data.seasons.forEach(function (s) { if (s.id === t.value) sn = s.name; });
+        if (!pick.name.trim() || pick.nameAuto) { pick.name = sn; pick.nameAuto = true; }
+      }
       render();
-    }
-    else if (t.hasAttribute('data-dseason')) { draft.seasonId = t.value; }
-    else if (t.hasAttribute('data-jseason')) {
-      var js2 = findSession(route().sid);
-      if (js2) { js2.seasonId = t.value; persist(); toast('Jornada movida a ' + seasonName(t.value)); }
     }
     else if (t.hasAttribute('data-n')) {
       var v = parseInt(t.value, 10);
@@ -1353,14 +1571,10 @@ button, input, select { font: inherit; color: inherit; }
 
   document.addEventListener('input', function (e) {
     var t = e.target;
-    if (t.hasAttribute('data-code')) {
-      codeVal = t.value;
-    } else if (t.hasAttribute('data-sedit')) {
-      if (seasonEdit) seasonEdit.name = t.value;
-    } else if (t.hasAttribute('data-snew')) {
-      seasonNew = t.value;
-    } else if (t.hasAttribute('data-nsname')) {
-      nsName = t.value;
+    if (t.hasAttribute('data-pkname')) {
+      pick.name = t.value; pick.nameAuto = false;
+    } else if (t.hasAttribute('data-pkcode')) {
+      pick.code = t.value;
     } else if (t.hasAttribute('data-pf')) {
       var pk2 = t.getAttribute('data-pf');
       if (pf[pk2]) pf[pk2].name = t.value;
@@ -1387,29 +1601,43 @@ button, input, select { font: inherit; color: inherit; }
     }
   });
 
+  // Enter en el nombre de "¿Falta alguien?" agrega al jugador, no genera la jornada.
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && e.target.id === 'nseason-name') {
+    if (e.key === 'Enter' && e.target.id === 'quick-name') {
       e.preventDefault();
-      var r = addSeason(nsName);
-      if (r.error) toast(r.error);
-      else { draft.seasonId = r.id; nsName = ''; render(); toast('Temporada "' + r.name + '" creada'); }
+      addPlayer('quick');
     }
   });
 
+  function needName() {
+    var name = pick.name.trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (!name) { pick.msg = 'Escribe un nombre para la comunidad.'; render(); return ''; }
+    return name;
+  }
+
   document.addEventListener('submit', function (e) {
     e.preventDefault();
-    if (e.target.id === 'code-form') submitCode(codeVal);
-    else if (e.target.id === 'gen-form') generateSession();
-    else if (e.target.id === 'player-form') addPlayer('main');
-    else if (e.target.id === 'quick-form') addPlayer('quick');
-    else if (e.target.id === 'edit-form') savePlayerEdit();
-    else if (e.target.id === 'sedit-form') saveSeasonEdit();
-    else if (e.target.id === 'season-form') {
-      var rs3 = addSeason(seasonNew);
-      if (rs3.error) toast(rs3.error);
-      else { seasonNew = ''; render(); toast('Temporada "' + rs3.name + '" creada'); }
+    var id = e.target.id;
+    if (id === 'gen-form') generateSession();
+    else if (id === 'player-form') addPlayer('main');
+    else if (id === 'edit-form') savePlayerEdit();
+    else if (id === 'create-form') { var n1 = needName(); if (n1) createCommunity(n1, null); }
+    else if (id === 'join-form') joinCommunity();
+    else if (id === 'mig-form') {
+      var n2 = needName();
+      if (n2 && legacy.data) createCommunity(n2, { players: legacy.data.players, sessions: legacySessions(pick.season), rules: legacy.data.rules });
     }
-    else if (e.target.id === 'ren-form') {
+    else if (id === 'conv-form') {
+      var n3 = needName();
+      if (n3) createCommunity(n3, { players: data.players, sessions: data.sessions, rules: data.rules });
+    }
+    else if (id === 'rencom-form') {
+      var nm = document.getElementById('rencom').value.trim().replace(/\s+/g, ' ').slice(0, 40);
+      if (!nm) { toast('Escribe un nombre para la comunidad.'); return; }
+      data.name = nm; rememberCommunity(prefs.code, nm); savePrefs();
+      renamingCom = false; persist(); render(); toast('Nombre actualizado');
+    }
+    else if (id === 'ren-form') {
       var s = findSession(route().sid);
       if (s) { s.name = document.getElementById('ren').value.trim().replace(/\s+/g, ' ').slice(0, 40); persist(); }
       renaming = false; render(); toast('Nombre actualizado');
@@ -1417,10 +1645,17 @@ button, input, select { font: inherit; color: inherit; }
   });
 
   window.addEventListener('hashchange', function () {
-    confirmSess = false; renaming = false; editing = null; confirmRound = null; pf.edit = null; seasonEdit = null;
+    confirmSess = false; renaming = false; renamingCom = false; editing = null; confirmRound = null; pf.edit = null;
     render(); window.scrollTo(0, 0);
   });
-  render();
+
+  function boot() {
+    var by = document.getElementById('by');
+    if (by) by.textContent = 'by Mundi · v' + APP_VERSION;
+    if (prefs.mode === 'local') enterLocal();
+    else if (prefs.mode === 'cloud' && validCode(prefs.code)) enterCloud(prefs.code, communityName(prefs.code));
+    else { appState = 'pick'; render(); detectLegacy(); }
+  }
   boot();
 })();
 </script>
