@@ -1,0 +1,9 @@
+{
+  "appId": "com.mundi.crackpadel",
+  "appName": "Crack Padel",
+  "webDir": "www",
+  "backgroundColor": "#0A1322",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -1,0 +1,81 @@
+name: Crack Padel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: crack-padel
+  cancel-in-progress: true
+
+jobs:
+  # Publica la versión web en https://<usuario>.github.io/crack-padel/
+  web:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Compila el APK y lo deja en la página de Releases
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Crear proyecto Android
+        run: npx cap add android
+
+      - name: Ajustar íconos, colores y versión
+        run: node scripts/android-setup.mjs
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+
+      - name: Copiar la app al proyecto Android
+        run: npx cap sync android
+
+      - name: Instalar llave de firma
+        run: |
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+
+      - name: Compilar APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Publicar APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk CrackPadel.apk
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest CrackPadel.apk \
+            --title "Crack Padel (APK)" \
+            --notes "Instala CrackPadel.apk en Android. Versión 1.0.${{ github.run_number }}." \
+            --latest

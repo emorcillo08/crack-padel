@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Es miembro quien ya entró al grupo con el código correcto.
+    function isMember() {
+      return signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid));
+    }
+
+    // El código del grupo vive en groupSecret/main (campo "code"). Nadie puede leerlo desde la app.
+    match /groupSecret/{doc} {
+      allow read, write: if false;
+    }
+
+    // Cada teléfono se registra una vez, y solo si escribe el código correcto.
+    match /members/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['code', 'joined'])
+        && request.resource.data.code == get(/databases/$(database)/documents/groupSecret/main).data.code;
+      allow update, delete: if false;
+    }
+
+    // Datos del grupo: solo los miembros leen y escriben.
+    match /{coll}/{id} {
+      allow read, write: if isMember()
+        && coll in ['players', 'seasons', 'sessions', 'results', 'config'];
+    }
+  }
+}

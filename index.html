@@ -1,0 +1,1428 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A1322">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Crack Padel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: app móvil de una columna con barra inferior fija. El ranking se lee como marcador de cancha: filas con líneas finas, sin tarjetas. Look oscuro fijo, inspirado en Premier Padel. */
+:root {
+  --bg: #0A1322;
+  --surface: #101C32;
+  --raise: #17253F;
+  --line: #243450;
+  --fg: #E9EFFA;
+  --muted: #8C9CB8;
+  --court: #4A86FF;
+  --ball: #DDF247;
+  --ball-ink: #121A05;
+  --bad: #FF8A8A;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); }
+body {
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 22px 0;
+}
+* { box-sizing: border-box; }
+.app { max-width: 560px; margin: 0 auto; padding-bottom: 120px; }
+h1, h2, h3, p { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--court); outline-offset: 2px; }
+
+.brand { display: flex; flex-direction: column; gap: 2px; margin-bottom: 22px; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.brand h1 { font-family: var(--font-display); font-weight: 700; font-size: 38px; line-height: 1; letter-spacing: .01em; text-transform: uppercase; text-wrap: balance; }
+
+.vh { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.vh h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; }
+.vh p { color: var(--muted); font-size: 13px; }
+.sec { font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 26px 0 4px; }
+.back { display: inline-block; margin-bottom: 10px; color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.titlebar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.titlebar .vh { min-width: 0; }
+
+.banner { background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--muted); }
+.banner strong { color: var(--fg); font-weight: 700; }
+.banner .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn { border: 0; border-radius: 12px; min-height: 46px; padding: 0 18px; font-weight: 700; cursor: pointer; background: var(--ball); color: var(--ball-ink); }
+.btn.block { width: 100%; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); font-weight: 500; }
+.btn.small { min-height: 36px; padding: 0 12px; font-size: 13px; }
+.btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--line); font-weight: 500; }
+.btn:disabled { opacity: .45; cursor: default; }
+
+/* Ranking y posiciones: PJ, G, E, P y puntos */
+.thead, .row { display: grid; grid-template-columns: 24px minmax(0, 1fr) 30px 30px 30px 30px 46px; align-items: center; column-gap: 2px; }
+.thead.noe, .row.noe { grid-template-columns: 24px minmax(0, 1fr) 34px 34px 34px 50px; }
+.thead.pa, .row.pa { grid-template-columns: 22px minmax(0, 1fr) 28px 28px 28px 28px 40px 40px; }
+.row.pa .pts { font-size: 24px; }
+.thead { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 0 8px; border-bottom: 1px solid var(--line); }
+.thead span:not(:nth-child(2)) { text-align: center; }
+.rows { list-style: none; margin: 0; padding: 0; }
+.row { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.pos { font-family: var(--font-display); font-weight: 600; font-size: 22px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.nm { font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nm.wrap { white-space: normal; overflow-wrap: anywhere; font-size: 15px; }
+.sub { font-size: 12px; color: var(--muted); }
+.n { text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pts { font-family: var(--font-display); font-weight: 700; font-size: 26px; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+.row.lead .pos, .row.lead .pts { color: var(--ball); }
+.legend { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+/* Juegos y jornadas */
+.games { display: flex; flex-direction: column; }
+.sb { display: grid; grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 34px); align-items: center; column-gap: 2px; color: var(--muted); }
+.sbn { display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.sb.w { color: var(--fg); font-weight: 700; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); flex: none; }
+.sb.w .dot { background: var(--ball); }
+.sc { font-family: var(--font-display); font-size: 22px; text-align: center; font-variant-numeric: tabular-nums; }
+.sc.sw { color: var(--fg); font-weight: 700; }
+.confirm { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+.jrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; }
+.jrow .nm { white-space: normal; overflow-wrap: anywhere; }
+.prog { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+.prog.done { color: var(--ball); }
+.round { margin-top: 24px; scroll-margin-top: 16px; }
+.rh { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.rh h3 { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; }
+.rest { font-size: 12px; color: var(--muted); text-align: right; }
+.match { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.mact { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+.editor { background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.pts-ed { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pts-ed input { text-align: center; font-family: var(--font-display); font-size: 26px; min-height: 52px; }
+.editor .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+/* Formularios */
+.form { display: flex; flex-direction: column; gap: 18px; }
+.group { display: flex; flex-direction: column; gap: 10px; }
+.group h3 { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.tag { width: 10px; height: 10px; border-radius: 3px; background: var(--court); }
+.tag.b { background: #FF9F43; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.field input, .field select, .inline input {
+  background: var(--raise); border: 1px solid var(--line); border-radius: 10px; min-height: 46px; padding: 0 12px; font-size: 16px; color: var(--fg); width: 100%;
+}
+.field select option { background: var(--surface); }
+.setrow { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 10px; align-items: center; }
+.setrow .lbl { font-size: 13px; color: var(--muted); }
+.setrow input { text-align: center; font-family: var(--font-display); font-size: 24px; min-height: 52px; padding: 0 4px; background: var(--raise); border: 1px solid var(--line); border-radius: 10px; color: var(--fg); width: 100%; }
+.setcap { display: grid; grid-template-columns: 64px 1fr 1fr; gap: 10px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.err { min-height: 18px; font-size: 13px; color: var(--bad); }
+.plan { font-size: 14px; color: var(--ball); font-weight: 500; }
+.inline { display: flex; gap: 8px; }
+.inline .btn { flex: none; }
+.plist { list-style: none; margin: 18px 0 0; padding: 0; }
+.prow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.prow .nm { font-size: 16px; }
+.prow.editing { display: block; }
+.prow.off .nm { color: var(--muted); }
+.pacts { display: flex; gap: 6px; flex: none; }
+.rh { flex-wrap: wrap; }
+.by { margin-top: 40px; text-align: center; font-size: 12px; letter-spacing: .08em; color: var(--muted); }
+.rules { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+.rules .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.addmore { display: flex; gap: 8px; align-items: flex-end; }
+.addmore .field { flex: 1; min-width: 0; }
+.empty { padding: 28px 0; color: var(--muted); display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.empty a { color: var(--ball); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--ball); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.seg button { border: 0; background: transparent; color: var(--muted); min-height: 42px; border-radius: 9px; font-weight: 700; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ball); color: var(--ball-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--raise); color: var(--fg); border-radius: 999px; min-height: 40px; padding: 0 14px; cursor: pointer; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--ball); color: var(--ball-ink); border-color: var(--ball); font-weight: 700; }
+.chip:disabled { opacity: .35; cursor: default; }
+.count { font-size: 13px; color: var(--muted); }
+.quick { border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+/* Barra inferior */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); z-index: 5;
+  padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.bar-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0 2px; font-size: 11px; color: var(--muted); text-decoration: none; border-radius: 12px; }
+.tab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tab[aria-current="page"] { color: var(--fg); }
+.tab[aria-current="page"] svg { stroke: var(--ball); }
+.tab.new .ico { width: 40px; height: 40px; border-radius: 50%; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; margin-top: -16px; box-shadow: 0 0 0 5px var(--surface); }
+.tab.new svg, .tab.new[aria-current="page"] svg { stroke: var(--ball-ink); }
+
+.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; z-index: 6; max-width: calc(100% - 32px); text-align: center; }
+.toast.on { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) { .toast { transition: opacity .2s; } }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="brand">
+    <p class="eyebrow" id="eyebrow">Cargando…</p>
+    <h1>Crack Padel</h1>
+  </header>
+  <main id="main"></main>
+  <footer class="by">by Mundi</footer>
+</div>
+
+<nav class="bar" id="bar" aria-label="Secciones" hidden>
+  <div class="bar-in">
+    <a class="tab" href="#ranking" data-v="ranking"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-7M12 20V5M19 20v-10"/></svg>Ranking</a>
+    <a class="tab new" href="#nuevo" data-v="nuevo"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Nuevo</a>
+    <a class="tab" href="#juegos" data-v="juegos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Juegos</a>
+    <a class="tab" href="#jugadores" data-v="jugadores"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16 5.2a3 3 0 010 5.6M18 14.8c1.9.7 3 2.4 3 5.2"/></svg>Jugadores</a>
+  </div>
+</nav>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/firebase-app-compat.js"></script>
+<script src="vendor/firebase-auth-compat.js"></script>
+<script src="vendor/firebase-firestore-compat.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // BEGIN LOGIC
+  var DEFAULT_RULES = { win: 3, draw: 2, loss: 1 };
+
+  function setsResult(sets) {
+    var a = 0, b = 0;
+    sets.forEach(function (s) { if (s[0] > s[1]) a++; else if (s[1] > s[0]) b++; });
+    return { a: a, b: b, winner: a > b ? 'A' : (b > a ? 'B' : null) };
+  }
+
+  // Resultado de un juego: por sets (g.sets) o por puntos americanos (g.pts).
+  function gameOutcome(g) {
+    if (g.pts) {
+      var x = g.pts[0], y = g.pts[1];
+      return { winner: x > y ? 'A' : (y > x ? 'B' : null), draw: x === y, gA: x, gB: y };
+    }
+    var r = setsResult(g.sets), gA = 0, gB = 0;
+    g.sets.forEach(function (s) { gA += s[0]; gB += s[1]; });
+    return { winner: r.winner, draw: false, gA: gA, gB: gB, sa: r.a, sb: r.b };
+  }
+
+  function computeRanking(players, games, rules) {
+    var drawPts = typeof rules.draw === 'number' ? rules.draw : Math.round((rules.win + rules.loss) / 2);
+    var st = {};
+    players.forEach(function (p) { st[p.id] = { id: p.id, name: p.name, pj: 0, pg: 0, pe: 0, pp: 0, pts: 0, pa: 0, gf: 0, gc: 0 }; });
+    games.forEach(function (g) {
+      var o = gameOutcome(g);
+      if (!o.winner && !o.draw) return;
+      g.a.forEach(function (id) { if (st[id]) { st[id].gf += o.gA; st[id].gc += o.gB; } });
+      g.b.forEach(function (id) { if (st[id]) { st[id].gf += o.gB; st[id].gc += o.gA; } });
+      if (g.pts) {
+        g.a.forEach(function (id) { if (st[id]) st[id].pa += g.pts[0]; });
+        g.b.forEach(function (id) { if (st[id]) st[id].pa += g.pts[1]; });
+      }
+      if (o.draw) {
+        g.a.concat(g.b).forEach(function (id) { if (st[id]) { st[id].pj++; st[id].pe++; st[id].pts += drawPts; } });
+        return;
+      }
+      var win = o.winner === 'A' ? g.a : g.b;
+      var lose = o.winner === 'A' ? g.b : g.a;
+      win.forEach(function (id) { if (st[id]) { st[id].pj++; st[id].pg++; st[id].pts += rules.win; } });
+      lose.forEach(function (id) { if (st[id]) { st[id].pj++; st[id].pp++; st[id].pts += rules.loss; } });
+    });
+    var list = Object.keys(st).map(function (k) { return st[k]; });
+    list.forEach(function (s) { s.ef = s.pj ? s.pg / s.pj : 0; });
+    list.sort(function (x, y) {
+      return (y.pts - x.pts) || (y.ef - x.ef) || ((y.gf - y.gc) - (x.gf - x.gc)) || x.name.localeCompare(y.name, 'es');
+    });
+    return list;
+  }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function zeros(n) {
+    var m = [];
+    for (var i = 0; i < n; i++) m.push(new Array(n).fill(0));
+    return m;
+  }
+
+  // Rondas recomendadas en Americano individual: que cada jugador haga pareja con todos una vez.
+  function defaultRounds(n) {
+    var m = Math.floor(n / 4);
+    if (m < 1) return 0;
+    return Math.ceil((n * (n - 1) / 2) / (2 * m));
+  }
+
+  // Todas las parejas contra todas (método del círculo). Si son impares, una descansa cada ronda.
+  function roundRobinPairs(pairs) {
+    var list = pairs.slice();
+    if (list.length % 2) list.push(null);
+    var n = list.length, rounds = [];
+    var fixed = list[0], rot = list.slice(1);
+    for (var r = 0; r < n - 1; r++) {
+      var arr = [fixed].concat(rot), matches = [], rest = [];
+      for (var i = 0; i < n / 2; i++) {
+        var x = arr[i], y = arr[n - 1 - i];
+        if (x === null || y === null) rest = rest.concat(x || y);
+        else matches.push({ a: x.slice(), b: y.slice() });
+      }
+      rounds.push({ matches: matches, rest: rest });
+      rot.unshift(rot.pop());
+    }
+    return rounds;
+  }
+
+  // Cada jugador hace pareja con todos exactamente una vez (n par). Devuelve n-1 rondas de parejas.
+  function circleRounds(ids) {
+    var n = ids.length, rounds = [], fixed = ids[0], rot = ids.slice(1);
+    for (var r = 0; r < n - 1; r++) {
+      var arr = [fixed].concat(rot), pairs = [];
+      for (var i = 0; i < n / 2; i++) pairs.push([arr[i], arr[n - 1 - i]]);
+      rounds.push(pairs);
+      rot.unshift(rot.pop());
+    }
+    return rounds;
+  }
+
+  // Americano individual con n múltiplo de 4: parejas perfectas; se reparte quién enfrenta a quién.
+  function americanoCircle(ids, R) {
+    var n = ids.length, best = null;
+    for (var t = 0; t < 80; t++) {
+      var order = shuffle(ids.slice()), idx = {};
+      order.forEach(function (id, i) { idx[id] = i; });
+      var base = circleRounds(order), opp = zeros(n), part = zeros(n), rounds = [], oppCost = 0, repeats = 0;
+      for (var r = 0; r < R; r++) {
+        var pairs = base[r % (n - 1)], bestPerm = null, bc = Infinity;
+        for (var s = 0; s < 200 && bc > 0; s++) {
+          var perm = shuffle(pairs.slice()), c = 0;
+          for (var k = 0; k < perm.length; k += 2) {
+            var P = perm[k], Q = perm[k + 1];
+            c += opp[idx[P[0]]][idx[Q[0]]] + opp[idx[P[0]]][idx[Q[1]]] + opp[idx[P[1]]][idx[Q[0]]] + opp[idx[P[1]]][idx[Q[1]]];
+          }
+          if (c < bc) { bc = c; bestPerm = perm; }
+        }
+        var matches = [];
+        for (var k2 = 0; k2 < bestPerm.length; k2 += 2) {
+          var A = bestPerm[k2], B = bestPerm[k2 + 1];
+          matches.push({ a: A.slice(), b: B.slice() });
+          [[A, B], [B, A]].forEach(function (pq) {
+            pq[0].forEach(function (x) { pq[1].forEach(function (y) { opp[idx[x]][idx[y]]++; }); });
+          });
+          [A, B].forEach(function (P2) {
+            var i = idx[P2[0]], j = idx[P2[1]];
+            if (part[i][j] > 0) repeats++;
+            part[i][j]++; part[j][i]++;
+          });
+        }
+        oppCost += bc;
+        rounds.push({ matches: matches, rest: [] });
+      }
+      var cost = repeats * 1000 + oppCost;
+      if (!best || cost < best.cost) best = { cost: cost, rounds: rounds, partnerRepeats: repeats };
+    }
+    return best;
+  }
+
+  // Americano individual con otros tamaños, o para seguir una jornada ya empezada (init):
+  // búsqueda aleatoria que evita repetir parejas y reparte los descansos.
+  function americanoGeneric(ids, R, init) {
+    var n = ids.length, m = Math.floor(n / 4), restN = n - 4 * m, best = null;
+    var all = ids.map(function (_, i) { return i; });
+    for (var t = 0; t < 150; t++) {
+      var part = init ? init.part.map(function (r) { return r.slice(); }) : zeros(n);
+      var opp = init ? init.opp.map(function (r) { return r.slice(); }) : zeros(n);
+      var rests = init ? init.rests.slice() : new Array(n).fill(0);
+      var rounds = [], repeats = 0, cost = 0;
+      for (var r = 0; r < R; r++) {
+        var order = shuffle(all.slice()).sort(function (x, y) { return rests[x] - rests[y]; });
+        var resting = order.slice(0, restN), playing = order.slice(restN), bestPerm = null, bc = Infinity;
+        for (var s = 0; s < 250; s++) {
+          var perm = shuffle(playing.slice()), c = 0;
+          for (var k = 0; k < m; k++) {
+            var a = perm[4 * k], b = perm[4 * k + 1], x = perm[4 * k + 2], y = perm[4 * k + 3];
+            c += 1000 * (part[a][b] + part[x][y]) + 3 * (opp[a][x] + opp[a][y] + opp[b][x] + opp[b][y]);
+          }
+          if (c < bc) { bc = c; bestPerm = perm; }
+        }
+        var matches = [];
+        for (var k2 = 0; k2 < m; k2++) {
+          var a2 = bestPerm[4 * k2], b2 = bestPerm[4 * k2 + 1], x2 = bestPerm[4 * k2 + 2], y2 = bestPerm[4 * k2 + 3];
+          if (part[a2][b2] > 0) repeats++;
+          if (part[x2][y2] > 0) repeats++;
+          part[a2][b2]++; part[b2][a2]++; part[x2][y2]++; part[y2][x2]++;
+          [[a2, x2], [a2, y2], [b2, x2], [b2, y2]].forEach(function (p) { opp[p[0]][p[1]]++; opp[p[1]][p[0]]++; });
+          matches.push({ a: [ids[a2], ids[b2]], b: [ids[x2], ids[y2]] });
+        }
+        resting.forEach(function (i) { rests[i]++; });
+        cost += bc;
+        rounds.push({ matches: matches, rest: resting.map(function (i) { return ids[i]; }) });
+      }
+      if (!best || cost < best.cost) best = { cost: cost, rounds: rounds, partnerRepeats: repeats };
+    }
+    return best;
+  }
+
+  function americanoSchedule(ids, R) {
+    return ids.length % 4 === 0 ? americanoCircle(ids, R) : americanoGeneric(ids, R);
+  }
+
+  function sessionMatches(s) {
+    var out = [];
+    s.rounds.forEach(function (r) { r.matches.forEach(function (m) { out.push(m); }); });
+    return out;
+  }
+
+  // Cuántas veces han jugado juntos, contra quién, y cuántos descansos lleva cada jugador (Americano individual).
+  function americanoState(s) {
+    var ids = s.entrants, idx = {}, n = ids.length;
+    ids.forEach(function (id, i) { idx[id] = i; });
+    var part = zeros(n), opp = zeros(n), rests = new Array(n).fill(0);
+    s.rounds.forEach(function (r) {
+      r.rest.forEach(function (id) { rests[idx[id]]++; });
+      r.matches.forEach(function (m) {
+        [m.a, m.b].forEach(function (p) { part[idx[p[0]]][idx[p[1]]]++; part[idx[p[1]]][idx[p[0]]]++; });
+        m.a.forEach(function (x) { m.b.forEach(function (y) { opp[idx[x]][idx[y]]++; opp[idx[y]][idx[x]]++; }); });
+      });
+    });
+    return { part: part, opp: opp, rests: rests };
+  }
+  function partnerRepeatsOf(s) {
+    var st = americanoState(s), n = s.entrants.length, rep = 0;
+    for (var i = 0; i < n; i++) for (var j = i + 1; j < n; j++) rep += Math.max(0, st.part[i][j] - 1);
+    return rep;
+  }
+
+  // Rondas nuevas para seguir una jornada: otro juego (sets), siguiente vuelta de parejas fijas, o rotación individual.
+  function extendSession(s, k) {
+    var out = [], i;
+    if (s.mode === 'sets') {
+      for (i = 0; i < k; i++) out.push({ rest: [], matches: [{ a: s.entrants[0].slice(), b: s.entrants[1].slice() }] });
+      return out;
+    }
+    if (s.pairing === 'fixed') {
+      var rr = roundRobinPairs(s.entrants), start = s.rounds.length;
+      for (i = 0; i < k; i++) {
+        var r = rr[(start + i) % rr.length];
+        out.push({ rest: r.rest.slice(), matches: r.matches.map(function (m) { return { a: m.a.slice(), b: m.b.slice() }; }) });
+      }
+      return out;
+    }
+    return americanoGeneric(s.entrants, k, americanoState(s)).rounds;
+  }
+
+  function addCounts(x, o, side, pts) {
+    x.pj++;
+    if (pts !== undefined) x.pts += pts;
+    if (o.draw) x.pe++; else if (o.winner === side) x.pg++; else x.pp++;
+  }
+
+  // Posiciones individuales de una jornada Americano (puntos anotados por su pareja).
+  function americanoStandings(s, nm) {
+    var st = {};
+    s.entrants.forEach(function (id) { st[id] = { id: id, name: nm(id), pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 }; });
+    sessionMatches(s).forEach(function (m) {
+      if (!m.res || !m.res.pts) return;
+      var o = gameOutcome({ pts: m.res.pts });
+      m.a.forEach(function (id) { if (st[id]) addCounts(st[id], o, 'A', m.res.pts[0]); });
+      m.b.forEach(function (id) { if (st[id]) addCounts(st[id], o, 'B', m.res.pts[1]); });
+    });
+    var list = Object.keys(st).map(function (k) { return st[k]; });
+    list.sort(function (x, y) { return (y.pts - x.pts) || (y.pg - x.pg) || x.name.localeCompare(y.name, 'es'); });
+    return list;
+  }
+
+  // Posiciones por pareja fija en Americano.
+  function americanoPairStandings(s, nm) {
+    var st = {};
+    function key(p) { return p.slice().sort().join('|'); }
+    s.entrants.forEach(function (p) { st[key(p)] = { key: key(p), name: p.map(nm).join(' · '), pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 }; });
+    sessionMatches(s).forEach(function (m) {
+      if (!m.res || !m.res.pts) return;
+      var o = gameOutcome({ pts: m.res.pts }), A = st[key(m.a)], B = st[key(m.b)];
+      if (A) addCounts(A, o, 'A', m.res.pts[0]);
+      if (B) addCounts(B, o, 'B', m.res.pts[1]);
+    });
+    var list = Object.keys(st).map(function (k) { return st[k]; });
+    list.sort(function (x, y) { return (y.pts - x.pts) || (y.pg - x.pg) || x.name.localeCompare(y.name, 'es'); });
+    return list;
+  }
+
+  // Posiciones por pareja en una jornada por sets.
+  function setsStandings(s, nm) {
+    var st = {};
+    function key(p) { return p.slice().sort().join('|'); }
+    s.entrants.forEach(function (p) {
+      st[key(p)] = { key: key(p), name: p.map(nm).join(' · '), pj: 0, pg: 0, pp: 0, sd: 0, gd: 0 };
+    });
+    sessionMatches(s).forEach(function (m) {
+      if (!m.res || !m.res.sets) return;
+      var o = gameOutcome({ sets: m.res.sets }), A = st[key(m.a)], B = st[key(m.b)];
+      if (!A || !B) return;
+      A.pj++; B.pj++;
+      A.sd += o.sa - o.sb; B.sd += o.sb - o.sa;
+      A.gd += o.gA - o.gB; B.gd += o.gB - o.gA;
+      if (o.winner === 'A') { A.pg++; B.pp++; } else { B.pg++; A.pp++; }
+    });
+    var list = Object.keys(st).map(function (k) { return st[k]; });
+    list.sort(function (x, y) { return (y.pg - x.pg) || (y.sd - x.sd) || (y.gd - x.gd) || x.name.localeCompare(y.name, 'es'); });
+    return list;
+  }
+
+  function parseSets(rows) {
+    var sets = [];
+    for (var i = 0; i < rows.length; i++) {
+      var x = String(rows[i][0]).trim(), y = String(rows[i][1]).trim();
+      if (x === '' && y === '') continue;
+      if (x === '' || y === '') return { sets: sets, error: 'Completa los dos lados del set ' + (i + 1) + '.' };
+      var a = Number(x), b = Number(y);
+      if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < 0 || a > 99 || b > 99) return { sets: sets, error: 'El set ' + (i + 1) + ' debe tener números enteros entre 0 y 99.' };
+      if (a === b) return { sets: sets, error: 'El set ' + (i + 1) + ' no puede terminar empatado.' };
+      sets.push([a, b]);
+    }
+    if (!sets.length) return { sets: sets, error: 'Ingresa el marcador por sets.' };
+    var r = setsResult(sets);
+    if (!r.winner) return { sets: sets, error: 'Quedó empatado en sets. Agrega el set de desempate.' };
+    return { sets: sets, error: null };
+  }
+  // END LOGIC
+
+  /* ---------- Sincronización con Firebase ---------- */
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCcZ0VieX2k2H5qEQbx_8uQHbMtJ-IuxNQ",
+    authDomain: "crack-padel.firebaseapp.com",
+    projectId: "crack-padel",
+    storageBucket: "crack-padel.firebasestorage.app",
+    messagingSenderId: "631254505593",
+    appId: "1:631254505593:web:333c27e7353e995f409ca8"
+  };
+  var COLLS = ['players', 'seasons', 'sessions', 'results'];
+  var PREF_KEY = 'crack-padel-prefs';
+  var db = null, auth = null, myUid = null, started = false;
+  var appState = 'loading';           // loading | code | error | ready
+  var gateMsg = '', codeVal = '', codeBusy = false;
+  var docs = { players: {}, seasons: {}, sessions: {}, results: {}, config: null };
+  var got = {}, base = null, pendingRender = false, unsubs = [], firstSync = false;
+
+  function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch (e) { return {}; } }
+  function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify({ curSeason: data.curSeason })); } catch (e) {} }
+
+  // Estado en memoria. curSeason es solo de este teléfono; el resto se comparte.
+  var data = { players: [], seasons: [], sessions: [], rules: { win: DEFAULT_RULES.win, draw: DEFAULT_RULES.draw, loss: DEFAULT_RULES.loss }, curSeason: loadPrefs().curSeason || '' };
+  var filt = data.curSeason || 'all';
+
+  // Cada elemento se guarda como un documento { j: "<json>" }. Los resultados van aparte
+  // para que dos personas puedan registrar juegos de la misma jornada a la vez.
+  function serialize() {
+    var out = { players: {}, seasons: {}, sessions: {}, results: {}, config: JSON.stringify({ rules: data.rules }) };
+    data.players.forEach(function (p) { out.players[p.id] = JSON.stringify(p); });
+    data.seasons.forEach(function (s) { out.seasons[s.id] = JSON.stringify(s); });
+    data.sessions.forEach(function (s) {
+      out.sessions[s.id] = JSON.stringify(s, function (k, v) { return k === 'res' ? undefined : v; });
+      sessionMatches(s).forEach(function (m) { if (m.res) out.results[m.id] = JSON.stringify({ sid: s.id, res: m.res }); });
+    });
+    return out;
+  }
+
+  // Envía solo lo que cambió respecto a lo último que se sincronizó.
+  function persist() {
+    savePrefs();
+    if (appState !== 'ready' || !base) return;
+    var next = serialize(), ops = [];
+    COLLS.forEach(function (c) {
+      Object.keys(next[c]).forEach(function (id) {
+        if (base[c][id] !== next[c][id]) ops.push({ c: c, id: id, j: next[c][id] });
+      });
+      Object.keys(base[c]).forEach(function (id) {
+        if (!(id in next[c])) ops.push({ c: c, id: id, del: true });
+      });
+    });
+    if (base.config !== next.config) ops.push({ c: 'config', id: 'main', j: next.config });
+    base = next;
+    for (var i = 0; i < ops.length; i += 400) {
+      var batch = db.batch();
+      ops.slice(i, i + 400).forEach(function (o) {
+        var ref = db.collection(o.c).doc(o.id);
+        if (o.del) batch.delete(ref); else batch.set(ref, { j: o.j });
+      });
+      batch.commit().catch(function (e) { toast('No se pudo guardar. Revisa tu conexión.'); console.error(e); });
+    }
+  }
+
+  function parseAll(m) {
+    return Object.keys(m).map(function (id) { try { return JSON.parse(m[id]); } catch (e) { return null; } })
+      .filter(function (x) { return x && x.id; });
+  }
+  function byCreated(a, b) { return ((a.created || 0) - (b.created || 0)) || String(a.id).localeCompare(String(b.id)); }
+  function num(v, d) { return typeof v === 'number' && isFinite(v) ? v : d; }
+
+  function rebuild() {
+    data.players = parseAll(docs.players).sort(byCreated);
+    data.seasons = parseAll(docs.seasons).sort(byCreated);
+    var res = {};
+    Object.keys(docs.results).forEach(function (mid) { try { res[mid] = JSON.parse(docs.results[mid]).res; } catch (e) {} });
+    data.sessions = parseAll(docs.sessions).sort(byCreated);
+    data.sessions.forEach(function (s) {
+      if (!Array.isArray(s.rounds)) s.rounds = [];
+      sessionMatches(s).forEach(function (m) { m.res = res[m.id] || null; });
+    });
+    var rules = null;
+    try { rules = JSON.parse(docs.config).rules; } catch (e) {}
+    data.rules = { win: num(rules && rules.win, DEFAULT_RULES.win), draw: num(rules && rules.draw, DEFAULT_RULES.draw), loss: num(rules && rules.loss, DEFAULT_RULES.loss) };
+    if (!data.seasons.some(function (s) { return s.id === data.curSeason; })) {
+      data.curSeason = data.seasons.length ? data.seasons[data.seasons.length - 1].id : '';
+    }
+    if (!firstSync) { firstSync = true; filt = data.curSeason || 'all'; }
+    else if (filt !== 'all' && !data.seasons.some(function (s) { return s.id === filt; })) filt = data.curSeason || 'all';
+    base = serialize();
+  }
+
+  function onRemote() {
+    if (!COLLS.concat('config').every(function (c) { return got[c]; })) return;
+    rebuild();
+    if (appState !== 'ready') { appState = 'ready'; render(); } else remoteRender();
+  }
+  // Si alguien está escribiendo, espera a que termine antes de refrescar la pantalla.
+  function isTyping() {
+    var a = document.activeElement;
+    return !!(a && main.contains(a) && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName));
+  }
+  function remoteRender() {
+    if (isTyping()) { pendingRender = true; return; }
+    render();
+  }
+  document.addEventListener('focusout', function () {
+    if (!pendingRender) return;
+    setTimeout(function () { if (!isTyping()) { pendingRender = false; render(); } }, 80);
+  });
+
+  function stopSync() { unsubs.forEach(function (u) { try { u(); } catch (e) {} }); unsubs = []; got = {}; }
+
+  function startSync() {
+    stopSync();
+    appState = 'loading'; render();
+    var failed = false;
+    function onErr(e) {
+      if (failed) return;
+      failed = true; stopSync();
+      if (e && e.code === 'permission-denied') { appState = 'code'; gateMsg = 'Este teléfono ya no tiene acceso al grupo. Escribe el código otra vez.'; }
+      else { appState = 'error'; gateMsg = 'No se pudo conectar con el servidor. Revisa tu conexión. (' + ((e && (e.code || e.message)) || 'error') + ')'; }
+      render();
+    }
+    COLLS.forEach(function (c) {
+      unsubs.push(db.collection(c).onSnapshot(function (snap) {
+        var m = {};
+        snap.forEach(function (d) { var x = d.data(); if (x && typeof x.j === 'string') m[d.id] = x.j; });
+        docs[c] = m; got[c] = true; onRemote();
+      }, onErr));
+    });
+    unsubs.push(db.collection('config').doc('main').onSnapshot(function (d) {
+      var x = d.exists ? d.data() : null;
+      docs.config = x && typeof x.j === 'string' ? x.j : null; got.config = true; onRemote();
+    }, onErr));
+  }
+
+  function submitCode(code) {
+    code = (code || '').trim();
+    if (!code) { gateMsg = 'Escribe el código del grupo.'; render(); return; }
+    codeBusy = true; gateMsg = ''; render();
+    db.collection('members').doc(myUid).set({ code: code, joined: firebase.firestore.FieldValue.serverTimestamp() })
+      .then(function () { codeBusy = false; codeVal = ''; startSync(); })
+      .catch(function (e) {
+        codeBusy = false; appState = 'code';
+        gateMsg = e && e.code === 'permission-denied' ? 'Código incorrecto. Pídelo a quien administra el grupo.' : 'No se pudo verificar el código. (' + ((e && (e.code || e.message)) || 'error') + ')';
+        render();
+      });
+  }
+
+  function gateErr(e) {
+    var code = e && e.code;
+    appState = 'error';
+    if (code === 'auth/operation-not-allowed' || code === 'auth/admin-restricted-operation') gateMsg = 'Falta activar el acceso anónimo en Firebase (Authentication, método Anónimo).';
+    else gateMsg = 'No se pudo conectar con el servidor. Revisa tu conexión. (' + (code || (e && e.message) || 'error') + ')';
+    render();
+  }
+
+  function boot() {
+    try {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      auth = firebase.auth(); db = firebase.firestore();
+    } catch (e) { gateErr(e); return; }
+    try { db.enablePersistence({ synchronizeTabs: true }).catch(function () {}); } catch (e) {}
+    auth.onAuthStateChanged(function (u) {
+      if (!u) { auth.signInAnonymously().catch(gateErr); return; }
+      if (started) return;
+      started = true; myUid = u.uid;
+      db.collection('members').doc(u.uid).get().then(function (snap) {
+        if (snap.exists) startSync(); else { appState = 'code'; render(); }
+      }).catch(function (e) { started = false; gateErr(e); });
+    });
+  }
+
+
+  var VIEWS = ['ranking', 'nuevo', 'juegos', 'jugadores'];
+  var main = document.getElementById('main');
+  var confirmSess = false;
+  var renaming = false;
+  var editing = null;
+  var scrollToRound = null;
+  var confirmRound = null;
+  var seasonEdit = null;
+  var seasonNew = '';
+  var nsName = '';
+  var GENDER = { H: 'Hombre', M: 'Mujer' };
+  var CATS = { amigos: 'Amigos', trabajo: 'Trabajo', externo: 'Externo' };
+  var pf = { main: { name: '', gender: '', cat: '' }, quick: { name: '', gender: '', cat: '' }, edit: null };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function todayStr() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function fmtDate(s) {
+    var p = s.split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+  function nameOf(id) {
+    for (var i = 0; i < data.players.length; i++) if (data.players[i].id === id) return data.players[i].name;
+    return 'Jugador eliminado';
+  }
+  function names(ids, sep) { return ids.map(function (id) { return esc(nameOf(id)); }).join(sep || ' · '); }
+  // Por defecto solo jugadores activos; los deshabilitados se conservan con su historial.
+  function sortedPlayers(all) {
+    return data.players.filter(function (p) { return all || !p.disabled; }).sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); });
+  }
+  function route() {
+    var h = location.hash.replace('#', '');
+    if (h.indexOf('jornada-') === 0) return { v: 'jornada', sid: h.slice(8) };
+    return { v: VIEWS.indexOf(h) >= 0 ? h : 'ranking' };
+  }
+  function findSession(id) {
+    for (var i = 0; i < data.sessions.length; i++) if (data.sessions[i].id === id) return data.sessions[i];
+    return null;
+  }
+  function playedGames(seasonId) {
+    var out = [];
+    data.sessions.forEach(function (s) {
+      if (seasonId && seasonId !== 'all' && s.seasonId !== seasonId) return;
+      sessionMatches(s).forEach(function (m) {
+        if (m.res) out.push({ id: m.id, date: s.date, a: m.a, b: m.b, sets: m.res.sets, pts: m.res.pts });
+      });
+    });
+    return out;
+  }
+  function sessionProgress(s) {
+    var all = sessionMatches(s);
+    return { done: all.filter(function (m) { return m.res; }).length, total: all.length };
+  }
+  function sessionTitle(s) { return s.name || (s.mode === 'americano' ? 'Americano · ' + s.target + ' pts' : 'Por sets'); }
+  function sessionFormat(s) {
+    if (s.mode === 'sets') return 'Por sets';
+    return 'Americano · ' + s.target + ' pts · ' + (s.pairing === 'fixed' ? 'Parejas fijas' : 'Individual');
+  }
+  function sessionSize(s) {
+    if (s.mode === 'americano' && s.pairing !== 'fixed') return s.entrants.length + ' jugadores';
+    return s.entrants.length + ' parejas';
+  }
+
+  var tt;
+  function toast(m) {
+    var t = document.getElementById('toast');
+    t.textContent = m;
+    t.classList.add('on');
+    clearTimeout(tt);
+    tt = setTimeout(function () { t.classList.remove('on'); }, 2600);
+  }
+
+  var draft = freshDraft();
+  function freshDraft() {
+    return { seasonId: data.curSeason, mode: 'sets', pairing: 'individual', target: 16, nPairs: 2, pairs: [['', ''], ['', '']], nPlayers: 8, chosen: [], rounds: '', name: '', date: todayStr() };
+  }
+  function pairCount() { return draft.mode === 'sets' ? 2 : (draft.pairing === 'fixed' ? draft.nPairs : 0); }
+  function normalizeDraft() {
+    var ids = sortedPlayers().map(function (p) { return p.id; });
+    if (!data.seasons.some(function (x) { return x.id === draft.seasonId; })) draft.seasonId = data.curSeason;
+    draft.nPairs = Math.max(2, Math.min(8, draft.nPairs));
+    draft.nPlayers = Math.max(4, Math.min(16, draft.nPlayers));
+    var need = Math.max(2, pairCount());
+    while (draft.pairs.length < need) draft.pairs.push(['', '']);
+    draft.pairs.length = need;
+    draft.pairs = draft.pairs.map(function (p) { return p.map(function (x) { return ids.indexOf(x) >= 0 ? x : ''; }); });
+    draft.chosen = draft.chosen.filter(function (x) { return ids.indexOf(x) >= 0; }).slice(0, draft.nPlayers);
+  }
+  function planInfo() {
+    if (draft.mode === 'sets') return '2 parejas · 1 juego a sets. Luego puedes agregar más juegos.';
+    if (draft.pairing === 'fixed') {
+      var M = draft.nPairs, rounds = M % 2 ? M : M - 1, games = M * (M - 1) / 2;
+      return M + ' parejas fijas · ' + rounds + (rounds === 1 ? ' ronda' : ' rondas') + ' · ' + games + (games === 1 ? ' juego' : ' juegos') + ' a ' + draft.target + ' puntos, todas contra todas';
+    }
+    var N = draft.nPlayers, m = Math.floor(N / 4), R = parseInt(draft.rounds, 10) || defaultRounds(N);
+    R = Math.max(1, Math.min(30, R));
+    var txt = N + ' jugadores · ' + R + (R === 1 ? ' ronda' : ' rondas') + ' · ' + (R * m) + (R * m === 1 ? ' juego' : ' juegos') + ' a ' + draft.target + ' puntos';
+    if (N - 4 * m) txt += ' · ' + (N - 4 * m) + (N - 4 * m === 1 ? ' descansa' : ' descansan') + ' por ronda';
+    return txt;
+  }
+
+  /* ---------- Vistas ---------- */
+  function theadHtml(first, last, noe) {
+    var cols = ['#', first, 'PJ', 'G'].concat(noe ? [] : ['E']).concat(['P', last]);
+    return '<div class="thead' + (noe ? ' noe' : '') + '" aria-hidden="true">' + cols.map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div>';
+  }
+  function standRows(list, lastFn, leadOn, noe) {
+    return '<ol class="rows">' + list.map(function (s, i) {
+      return '<li class="row' + (noe ? ' noe' : '') + (i === 0 && leadOn(s) ? ' lead' : '') + '"><span class="pos">' + (i + 1) + '</span>' +
+        '<div class="who"><span class="nm wrap">' + esc(s.name) + '</span></div>' +
+        '<span class="n">' + s.pj + '</span><span class="n">' + s.pg + '</span>' + (noe ? '' : '<span class="n">' + s.pe + '</span>') + '<span class="n">' + s.pp + '</span>' +
+        '<span class="pts">' + lastFn(s) + '</span></li>';
+    }).join('') + '</ol>';
+  }
+
+  /* ---------- Temporadas ---------- */
+  function seasonName(id) {
+    for (var i = 0; i < data.seasons.length; i++) if (data.seasons[i].id === id) return data.seasons[i].name;
+    return 'Sin temporada';
+  }
+  function seasonCount(id) { return data.sessions.filter(function (s) { return s.seasonId === id; }).length; }
+  function seasonOpts(sel, withAll) {
+    if (!data.seasons.length && !withAll) return '<option value="">Crea una temporada primero</option>';
+    return (withAll ? '<option value="all"' + (sel === 'all' ? ' selected' : '') + '>Todas las temporadas</option>' : '') +
+      data.seasons.map(function (s) { return '<option value="' + s.id + '"' + (sel === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>'; }).join('');
+  }
+  function seasonFilterHtml() {
+    return '<label class="field" for="sfilter" style="margin-bottom:14px"><span>Temporada</span><select id="sfilter" data-sfilter>' + seasonOpts(filt, true) + '</select></label>';
+  }
+  function addSeason(raw) {
+    var name = raw.trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (!name) return { error: 'Escribe el nombre de la temporada.' };
+    if (data.seasons.some(function (s) { return s.name.toLowerCase() === name.toLowerCase(); })) return { error: 'Ya existe una temporada con ese nombre.' };
+    var s = { id: uid(), created: Date.now(), name: name };
+    data.seasons.push(s);
+    persist();
+    return { id: s.id, name: name };
+  }
+  function saveSeasonEdit() {
+    if (!seasonEdit) return;
+    var name = seasonEdit.name.trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (!name) { toast('Escribe el nombre de la temporada.'); return; }
+    if (data.seasons.some(function (s) { return s.id !== seasonEdit.id && s.name.toLowerCase() === name.toLowerCase(); })) { toast('Ya existe una temporada con ese nombre.'); return; }
+    data.seasons.forEach(function (s) { if (s.id === seasonEdit.id) s.name = name; });
+    seasonEdit = null;
+    persist(); render(); toast('Temporada actualizada');
+  }
+  function seasonsHtml() {
+    var rows = data.seasons.map(function (s) {
+      if (seasonEdit && seasonEdit.id === s.id) {
+        return '<li class="prow editing"><form class="inline" id="sedit-form" novalidate><input id="sedit-name" type="text" maxlength="40" data-sedit value="' + esc(seasonEdit.name) + '" aria-label="Nombre de la temporada" autocomplete="off">' +
+          '<button class="btn small" type="submit">Guardar</button><button class="btn small ghost" type="button" data-act="s-cancel">Cancelar</button></form></li>';
+      }
+      var n = seasonCount(s.id);
+      return '<li class="prow"><div class="who"><span class="nm">' + esc(s.name) + '</span><span class="sub">' + n + (n === 1 ? ' jornada' : ' jornadas') + '</span></div>' +
+        '<div class="pacts"><button class="btn small ghost" data-act="s-edit" data-id="' + s.id + '">Editar</button></div></li>';
+    }).join('');
+    return '<section class="rules"><div class="vh"><h2>Temporadas</h2><p>Cada temporada tiene su propio ranking. Se elige al crear una jornada.</p></div>' +
+      '<ul class="plist" style="margin-top:0">' + rows + '</ul>' +
+      '<form class="inline" id="season-form" novalidate style="margin-top:12px"><input id="season-new" type="text" maxlength="40" data-snew placeholder="Nueva temporada" value="' + esc(seasonNew) + '" autocomplete="off" aria-label="Nueva temporada"><button class="btn" type="submit">Agregar</button></form></section>';
+  }
+  function seasonPick() {
+    return '<div class="group"><label class="field" for="dseason"><span>Temporada de esta jornada</span><select id="dseason" data-dseason>' + seasonOpts(draft.seasonId, false) + '</select></label>' +
+      '<div class="inline"><input id="nseason-name" type="text" maxlength="40" data-nsname placeholder="¿Otra temporada? Escribe el nombre" value="' + esc(nsName) + '" autocomplete="off" aria-label="Nombre de la nueva temporada">' +
+      '<button class="btn ghost" type="button" data-act="nseason-add">Crear</button></div></div>';
+  }
+
+  function viewRanking() {
+    var r = data.rules;
+    var head = '<div class="vh"><h2>Ranking</h2><p>Victoria ' + r.win + ' · Empate ' + r.draw + ' · Derrota ' + r.loss + ' pts</p></div>' + seasonFilterHtml();
+    var banner = '';
+    var activeList = sortedPlayers();
+    if (!activeList.length) {
+      return head + banner + '<div class="empty"><p>Aún no hay jugadores activos en el ranking.</p><a href="#jugadores">Ir a Jugadores</a></div>';
+    }
+    var rk = computeRanking(activeList, playedGames(filt), data.rules);
+    var rows = rk.map(function (s, i) {
+      return '<li class="row pa' + (i === 0 && s.pj ? ' lead' : '') + '">' +
+        '<span class="pos">' + (i + 1) + '</span>' +
+        '<div class="who"><span class="nm">' + esc(s.name) + '</span><span class="sub">' + (s.pj ? Math.round(s.ef * 100) + '% victorias' : 'Sin juegos') + '</span></div>' +
+        '<span class="n">' + s.pj + '</span><span class="n">' + s.pg + '</span><span class="n">' + s.pe + '</span><span class="n">' + s.pp + '</span>' +
+        '<span class="pts">' + s.pts + '</span><span class="n">' + (s.pa ? s.pa : '–') + '</span></li>';
+    }).join('');
+    return head + banner +
+      '<div class="thead pa" aria-hidden="true"><span>#</span><span>Jugador</span><span>PJ</span><span>G</span><span>E</span><span>P</span><span>Pts</span><span>PA</span></div>' +
+      '<ol class="rows">' + rows + '</ol>' +
+      '<p class="legend">PJ jugados · G ganados · E empatados · P perdidos · Pts puntos del ranking · PA puntos acumulados en Americano (parejas fijas e individual)</p>' + seasonsHtml();
+  }
+
+  function scoreLines(m) {
+    var out = m.res ? gameOutcome({ sets: m.res.sets, pts: m.res.pts }) : null;
+    var line = function (ids, side) {
+      var won = out && out.winner === side, cells, cols = 1;
+      if (!m.res) cells = '<span class="sc">–</span>';
+      else if (m.res.pts) cells = '<span class="sc' + (won ? ' sw' : '') + '">' + m.res.pts[side === 'A' ? 0 : 1] + '</span>';
+      else {
+        cols = m.res.sets.length;
+        cells = m.res.sets.map(function (s) {
+          var me = side === 'A' ? s[0] : s[1], op = side === 'A' ? s[1] : s[0];
+          return '<span class="sc' + (me > op ? ' sw' : '') + '">' + me + '</span>';
+        }).join('');
+      }
+      return '<div class="sb' + (won ? ' w' : '') + '" style="--cols:' + cols + '"><span class="sbn"><i class="dot"></i><span>' + names(ids) + '</span></span>' + cells + '</div>';
+    };
+    return line(m.a, 'A') + line(m.b, 'B');
+  }
+
+  function viewJuegos() {
+    var inSeason = data.sessions.filter(function (s) { return filt === 'all' || s.seasonId === filt; });
+    var n = inSeason.length;
+    var head = '<div class="vh"><h2>Juegos</h2><p>' + n + (n === 1 ? ' jornada' : ' jornadas') + '</p></div>' + seasonFilterHtml();
+    if (!n) return head + '<div class="empty"><p>No hay jornadas en esta temporada.</p><a href="#nuevo">Crear una jornada</a></div>';
+    var js = inSeason.slice().reverse().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    return head + '<div class="games">' + js.map(function (s) {
+      var p = sessionProgress(s);
+      return '<a class="jrow" href="#jornada-' + s.id + '"><div class="who"><span class="nm">' + esc(sessionTitle(s)) + '</span><span class="sub">' + esc(fmtDate(s.date)) + ' · ' + esc(sessionFormat(s)) + ' · ' + sessionSize(s) + (filt === 'all' ? ' · ' + esc(seasonName(s.seasonId)) : '') + '</span></div>' +
+        '<span class="prog' + (p.done === p.total ? ' done' : '') + '">' + p.done + '/' + p.total + '</span></a>';
+    }).join('') + '</div>';
+  }
+
+  function pairSelect(i, j) {
+    var taken = [];
+    draft.pairs.forEach(function (p, pi) { p.forEach(function (x, pj) { if (x && !(pi === i && pj === j)) taken.push(x); }); });
+    var opts = sortedPlayers().map(function (p) {
+      return '<option value="' + p.id + '"' + (draft.pairs[i][j] === p.id ? ' selected' : '') + (taken.indexOf(p.id) >= 0 ? ' disabled' : '') + '>' + esc(p.name) + '</option>';
+    }).join('');
+    return '<label class="field" for="pr' + i + '-' + j + '"><span>Jugador ' + (j + 1) + '</span><select id="pr' + i + '-' + j + '" data-pair="' + i + ',' + j + '"><option value="">Elegir jugador</option>' + opts + '</select></label>';
+  }
+  function countOptions(from, to, sel, unit) {
+    var o = '';
+    for (var v = from; v <= to; v++) o += '<option value="' + v + '"' + (v === sel ? ' selected' : '') + '>' + v + ' ' + unit + '</option>';
+    return o;
+  }
+  function segHtml(label, act, items, cur, extra) {
+    return '<div class="group"><h3>' + label + '</h3><div class="seg" role="group" aria-label="' + label + '">' + items.map(function (it) {
+      return '<button type="button" data-act="' + act + '"' + (extra || '') + ' data-id="' + it[0] + '" aria-pressed="' + (String(cur) === String(it[0])) + '">' + it[1] + '</button>';
+    }).join('') + '</div></div>';
+  }
+  // Nombre, género y clasificación: se usan al agregar un jugador y al editarlo.
+  function playerFields(k, st, idp) {
+    var ex = ' data-k="' + k + '"';
+    return '<label class="field" for="' + idp + '-name"><span>Nombre</span><input id="' + idp + '-name" type="text" maxlength="30" data-pf="' + k + '" value="' + esc(st.name) + '" placeholder="Nombre del jugador" autocomplete="off"></label>' +
+      segHtml('Género', 'pf-set', [['H', 'Hombre'], ['M', 'Mujer']], st.gender, ex + ' data-f="gender"') +
+      segHtml('Clasificación', 'pf-set', [['amigos', 'Amigos'], ['trabajo', 'Trabajo'], ['externo', 'Externo']], st.cat, ex + ' data-f="cat"');
+  }
+
+  function viewNuevo() {
+    normalizeDraft();
+    var head = '<div class="vh"><h2>Nueva jornada</h2><p>Elige el formato y la app genera los juegos rotados.</p></div>';
+    var isSets = draft.mode === 'sets', fixed = draft.pairing === 'fixed';
+    var html = head + '<form class="form" id="gen-form" novalidate>' + seasonPick();
+    html += segHtml('Formato', 'mode', [['sets', 'Por sets'], ['americano', 'Americano']], draft.mode);
+    if (!isSets) {
+      html += segHtml('Modalidad', 'pairing', [['individual', 'Individual'], ['fixed', 'Parejas fijas']], draft.pairing);
+      html += segHtml('Puntos por juego', 'target', [[16, '16 puntos'], [24, '24 puntos']], draft.target);
+    }
+    if (isSets || fixed) {
+      if (!isSets) html += '<label class="field" for="npairs"><span>Parejas que juegan hoy</span><select id="npairs" data-n="pairs">' + countOptions(2, 8, draft.nPairs, 'parejas') + '</select></label>';
+      for (var i = 0; i < pairCount(); i++) {
+        html += '<div class="group"><h3><i class="tag' + (i % 2 ? ' b' : '') + '"></i>Pareja ' + (i + 1) + '</h3>' + pairSelect(i, 0) + pairSelect(i, 1) + '</div>';
+      }
+    } else {
+      html += '<label class="field" for="nplayers"><span>Jugadores que juegan hoy</span><select id="nplayers" data-n="players">' + countOptions(4, 16, draft.nPlayers, 'jugadores') + '</select></label>';
+      var full = draft.chosen.length >= draft.nPlayers;
+      html += '<div class="group"><h3>Quiénes juegan</h3><div class="chips">' + sortedPlayers().map(function (p) {
+        var on = draft.chosen.indexOf(p.id) >= 0;
+        return '<button type="button" class="chip" data-act="chip" data-id="' + p.id + '" aria-pressed="' + on + '"' + (!on && full ? ' disabled' : '') + '>' + esc(p.name) + '</button>';
+      }).join('') + '</div><p class="count">Elegidos ' + draft.chosen.length + ' de ' + draft.nPlayers +
+        (sortedPlayers().length < draft.nPlayers ? '. Solo tienes ' + sortedPlayers().length + ' jugadores activos: agrega los que faltan abajo.' : '') + '</p></div>';
+      html += '<label class="field" for="nrounds"><span>Rondas (déjalo vacío para usar las recomendadas: ' + defaultRounds(draft.nPlayers) + ')</span><input id="nrounds" type="number" inputmode="numeric" min="1" max="30" data-rounds value="' + esc(draft.rounds) + '" placeholder="' + defaultRounds(draft.nPlayers) + '"></label>';
+    }
+    html += '<label class="field" for="nname"><span>Nombre de la jornada (opcional)</span><input id="nname" type="text" maxlength="40" data-name value="' + esc(draft.name) + '" placeholder="Ej. Birria de amigos 1" autocomplete="off"></label>' +
+      '<label class="field" for="ndate"><span>Fecha</span><input id="ndate" type="date" data-date value="' + esc(draft.date) + '"></label>' +
+      '<p class="plan" id="plan">' + esc(planInfo()) + '</p><p class="err" id="err" role="alert"></p>' +
+      '<button class="btn block" type="submit" id="gen-btn">Generar juegos</button></form>' +
+      '<form class="quick form" id="quick-form" novalidate><h3 class="sec" style="margin:0">¿Falta alguien?</h3>' + playerFields('quick', pf.quick, 'quick') + '<button class="btn block" type="submit">Agregar jugador</button></form>';
+    return html;
+  }
+
+  function editorHtml(s, m) {
+    var e = editing, rows = '';
+    if (s.mode === 'americano') {
+      return '<div class="editor"><div class="pts-ed">' +
+        '<label class="field" for="e-pa"><span>' + names(m.a) + '</span><input id="e-pa" type="number" inputmode="numeric" min="0" max="' + s.target + '" data-ed="pa" value="' + esc(e.pa) + '"></label>' +
+        '<label class="field" for="e-pb"><span>' + names(m.b) + '</span><input id="e-pb" type="number" inputmode="numeric" min="0" max="' + s.target + '" data-ed="pb" value="' + esc(e.pb) + '"></label></div>' +
+        '<p class="count">Los puntos de las dos parejas suman ' + s.target + '. Al escribir uno, el otro se completa.</p>' +
+        '<p class="err" id="e-err" role="alert"></p>' + editorButtons(m) + '</div>';
+    }
+    for (var i = 0; i < 3; i++) {
+      rows += '<div class="setrow"><span class="lbl">Set ' + (i + 1) + (i === 2 ? ' (opc.)' : '') + '</span>' +
+        '<input id="e-s' + i + 'a" type="number" inputmode="numeric" min="0" max="99" data-eset="' + i + ',0" value="' + esc(e.sets[i][0]) + '" aria-label="Juegos pareja A, set ' + (i + 1) + '">' +
+        '<input id="e-s' + i + 'b" type="number" inputmode="numeric" min="0" max="99" data-eset="' + i + ',1" value="' + esc(e.sets[i][1]) + '" aria-label="Juegos pareja B, set ' + (i + 1) + '"></div>';
+    }
+    return '<div class="editor"><div class="setcap"><span></span><span>Pareja A</span><span>Pareja B</span></div>' + rows +
+      '<p class="err" id="e-err" role="alert"></p>' + editorButtons(m) + '</div>';
+  }
+  function editorButtons(m) {
+    return '<div class="acts"><button class="btn small" data-act="save-res" data-id="' + m.id + '">Guardar</button>' +
+      '<button class="btn small ghost" data-act="cancel-ed">Cancelar</button>' +
+      (m.res ? '<button class="btn small danger" data-act="clear-res" data-id="' + m.id + '">Quitar resultado</button>' : '') + '</div>';
+  }
+
+  function matchHtml(s, m) {
+    var isEd = editing && editing.mid === m.id;
+    return '<article class="match">' + scoreLines(m) +
+      (isEd ? editorHtml(s, m) : '<div class="mact"><button class="btn small ghost" data-act="edit" data-id="' + m.id + '">' + (m.res ? 'Editar' : 'Registrar') + '</button></div>') +
+      '</article>';
+  }
+
+  function addMoreHtml(s, p) {
+    var hint = p.done === p.total ? 'Ya se jugaron todos los juegos. Si hay tiempo, agrega más.' : 'Agrega más juegos cuando los necesites.';
+    if (s.mode === 'sets') {
+      if (s.entrants.length !== 2) return '';
+      return '<section class="rules"><div class="vh"><h2>Agregar juegos</h2><p>' + hint + ' Otro juego entre las mismas dos parejas.</p></div>' +
+        '<button class="btn" data-act="add-more" data-id="1">Agregar otro juego</button></section>';
+    }
+    var per = s.pairing === 'fixed' ? Math.floor(s.entrants.length / 2) : Math.floor(s.entrants.length / 4), opts = '';
+    var init = Math.max(1, Math.min(30, s.initialRounds || s.rounds.length)), maxK = Math.max(6, init);
+    for (var k = 1; k <= maxK; k++) opts += '<option value="' + k + '"' + (k === init ? ' selected' : '') + '>' + k + (k === 1 ? ' ronda' : ' rondas') + ' · ' + (k * per) + (k * per === 1 ? ' juego' : ' juegos') + '</option>';
+    return '<section class="rules"><div class="vh"><h2>Agregar juegos</h2><p>' + hint + ' Por defecto se agrega lo mismo que al crear la jornada.</p></div>' +
+      '<div class="addmore"><label class="field" for="addn"><span>Cuánto agregar</span><select id="addn">' + opts + '</select></label>' +
+      '<button class="btn" data-act="add-more">Agregar</button></div></section>';
+  }
+
+  function viewJornada(sid) {
+    var s = findSession(sid);
+    if (!s) return '<a class="back" href="#juegos">← Juegos</a><div class="empty"><p>Esa jornada no existe.</p><a href="#juegos">Ver jornadas</a></div>';
+    var p = sessionProgress(s);
+    var html = '<a class="back" href="#juegos">← Juegos</a>';
+    if (renaming) {
+      html += '<form class="inline" id="ren-form" novalidate style="margin-bottom:14px"><input id="ren" type="text" maxlength="40" value="' + esc(s.name) + '" placeholder="Ej. Birria de amigos 1" aria-label="Nombre de la jornada" autocomplete="off">' +
+        '<button class="btn" type="submit">Guardar</button><button class="btn ghost" type="button" data-act="rename-cancel">Cancelar</button></form>';
+    } else {
+      html += '<div class="titlebar"><div class="vh"><h2>' + esc(sessionTitle(s)) + '</h2></div><button class="btn small ghost" data-act="rename">Editar nombre</button></div>';
+    }
+    html += '<div class="vh"><p>' + esc(sessionFormat(s)) + ' · ' + esc(fmtDate(s.date)) + ' · ' + sessionSize(s) + ' · ' + p.done + ' de ' + p.total + ' jugados</p></div>' +
+      '<label class="field" for="jseason" style="margin-bottom:6px"><span>Temporada</span><select id="jseason" data-jseason>' + seasonOpts(s.seasonId, false) + '</select></label>';
+    if (s.mode === 'americano') {
+      var fixed = s.pairing === 'fixed';
+      var st = fixed ? americanoPairStandings(s, nameOf) : americanoStandings(s, nameOf);
+      html += '<h3 class="sec" style="margin-top:6px">Posiciones</h3>' + theadHtml(fixed ? 'Pareja' : 'Jugador', 'Pts', false) +
+        standRows(st, function (x) { return x.pts; }, function (x) { return x.pj > 0; }, false) +
+        '<p class="legend">PJ jugados · G ganados · E empatados · P perdidos · Pts puntos anotados.</p>';
+      if (!fixed && s.stats && s.stats.partnerRepeats > 0) {
+        html += '<p class="note">Con ' + s.entrants.length + ' jugadores y estas rondas, ' + s.stats.partnerRepeats + (s.stats.partnerRepeats === 1 ? ' pareja se repite' : ' parejas se repiten') + '.</p>';
+      }
+    } else if (sessionMatches(s).length > 1) {
+      var ss = setsStandings(s, nameOf);
+      html += '<h3 class="sec" style="margin-top:6px">Marcador</h3>' + theadHtml('Pareja', 'Dif', true) +
+        standRows(ss, function (x) { return (x.sd > 0 ? '+' : '') + x.sd; }, function (x) { return x.pj > 0; }, true) +
+        '<p class="legend">Dif es la diferencia de sets a favor y en contra.</p>';
+    }
+    html += s.rounds.map(function (r, i) {
+      var del = '';
+      if (r.added) {
+        del = confirmRound === i
+          ? '<span class="confirm">¿Borrar? <button class="btn small danger" data-act="round-del-yes" data-id="' + i + '">Sí</button><button class="btn small ghost" data-act="round-del-no">No</button></span>'
+          : '<button class="btn small ghost" data-act="round-del" data-id="' + i + '">Borrar</button>';
+      }
+      return '<section class="round" id="round-' + (i + 1) + '"><div class="rh"><h3>' + (s.mode === 'sets' ? 'Juego ' + (i + 1) : 'Ronda ' + (i + 1)) + (r.added ? ' <span class="sub">agregada</span>' : '') + '</h3>' +
+        (r.rest.length ? '<span class="rest">Descansan: ' + names(r.rest, ', ') + '</span>' : '') + del + '</div>' +
+        r.matches.map(function (m) { return matchHtml(s, m); }).join('') + '</section>';
+    }).join('');
+    html += addMoreHtml(s, p);
+    html += '<div class="mact" style="margin-top:26px">' + (confirmSess
+      ? '<span class="confirm">¿Borrar la jornada y sus resultados? <button class="btn small danger" data-act="sess-del-yes">Sí</button><button class="btn small ghost" data-act="sess-del-no">No</button></span>'
+      : '<button class="btn small ghost" data-act="sess-del">Borrar jornada</button>') + '</div>';
+    return html;
+  }
+
+  function viewJugadores() {
+    var counts = {};
+    data.sessions.forEach(function (s) {
+      sessionMatches(s).forEach(function (m) {
+        m.a.concat(m.b).forEach(function (id) { if (m.res) counts[id] = (counts[id] || 0) + 1; });
+      });
+    });
+    function row(p) {
+      if (pf.edit && pf.edit.id === p.id) {
+        return '<li class="prow editing"><form class="form" id="edit-form" novalidate>' + playerFields('edit', pf.edit, 'edit') +
+          '<div class="mact" style="justify-content:flex-start"><button class="btn small" type="submit">Guardar</button><button class="btn small ghost" type="button" data-act="p-cancel">Cancelar</button></div></form></li>';
+      }
+      var n = counts[p.id] || 0;
+      var meta = [n + (n === 1 ? ' juego' : ' juegos'), GENDER[p.gender] || 'Sin género', CATS[p.cat] || 'Sin clasificar'];
+      return '<li class="prow' + (p.disabled ? ' off' : '') + '"><div class="who"><span class="nm">' + esc(p.name) + '</span><span class="sub">' + meta.join(' · ') + '</span></div><div class="pacts">' +
+        '<button class="btn small ghost" data-act="p-edit" data-id="' + p.id + '">Editar</button>' +
+        (p.disabled
+          ? '<button class="btn small" data-act="p-on" data-id="' + p.id + '">Habilitar</button>'
+          : '<button class="btn small ghost" data-act="p-off" data-id="' + p.id + '">Deshabilitar</button>') + '</div></li>';
+    }
+    var everyone = sortedPlayers(true);
+    var onList = everyone.filter(function (p) { return !p.disabled; }), offList = everyone.filter(function (p) { return p.disabled; });
+    var list = onList.map(row).join('');
+    var offHtml = offList.length
+      ? '<h3 class="sec">Deshabilitados</h3><p class="count">No salen en el ranking ni al armar jornadas. Su historial se conserva.</p><ul class="plist" style="margin-top:6px">' + offList.map(row).join('') + '</ul>'
+      : '';
+    var r = data.rules;
+    return '<div class="vh"><h2>Jugadores</h2><p>' + onList.length + (onList.length === 1 ? ' activo' : ' activos') + (offList.length ? ' · ' + offList.length + (offList.length === 1 ? ' deshabilitado' : ' deshabilitados') : '') + '</p></div>' +
+      '<form class="form" id="player-form" novalidate><h3 class="sec" style="margin:0">Nuevo jugador</h3>' + playerFields('main', pf.main, 'main') + '<button class="btn block" type="submit">Agregar jugador</button></form>' +
+      '<ul class="plist">' + list + '</ul>' + offHtml +
+      '<section class="rules"><div class="vh"><h2>Reglas de puntos</h2><p>Se aplican a cada jugador de la pareja.</p></div>' +
+      '<div class="three"><label class="field" for="r-win"><span>Victoria</span><input id="r-win" type="number" inputmode="numeric" min="0" max="20" value="' + r.win + '"></label>' +
+      '<label class="field" for="r-draw"><span>Empate</span><input id="r-draw" type="number" inputmode="numeric" min="0" max="20" value="' + r.draw + '"></label>' +
+      '<label class="field" for="r-loss"><span>Derrota</span><input id="r-loss" type="number" inputmode="numeric" min="0" max="20" value="' + r.loss + '"></label></div></section>';
+  }
+
+  function gateHtml() {
+    if (appState === 'code') {
+      return '<form class="form" id="code-form" novalidate><div class="vh"><h2>Código del grupo</h2><p>Escribe el código que te dio quien administra el grupo. Solo se pide una vez en cada teléfono.</p></div>' +
+        '<label class="field" for="code"><span>Código</span><input id="code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-code value="' + esc(codeVal) + '"></label>' +
+        '<p class="err" role="alert">' + esc(gateMsg) + '</p>' +
+        '<button class="btn block" type="submit"' + (codeBusy ? ' disabled' : '') + '>' + (codeBusy ? 'Verificando…' : 'Entrar al grupo') + '</button></form>';
+    }
+    if (appState === 'error') {
+      return '<div class="empty"><p>' + esc(gateMsg) + '</p><button class="btn" data-act="reload">Reintentar</button></div>';
+    }
+    return '<div class="empty"><p>Conectando…</p></div>';
+  }
+
+  function render() {
+    var bar = document.getElementById('bar');
+    if (appState !== 'ready') {
+      main.innerHTML = gateHtml();
+      if (bar) bar.hidden = true;
+      return;
+    }
+    if (bar) bar.hidden = false;
+    var r = route(), html;
+    if (r.v === 'ranking') html = viewRanking();
+    else if (r.v === 'nuevo') html = viewNuevo();
+    else if (r.v === 'juegos') html = viewJuegos();
+    else if (r.v === 'jornada') html = viewJornada(r.sid);
+    else html = viewJugadores();
+    main.innerHTML = html;
+    var eb = document.getElementById('eyebrow');
+    if (eb) eb.textContent = filt === 'all' ? 'Todas las temporadas' : seasonName(filt);
+    var active = r.v === 'jornada' ? 'juegos' : r.v;
+    document.querySelectorAll('.tab').forEach(function (a) {
+      if (a.getAttribute('data-v') === active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    if (scrollToRound) {
+      var el = document.getElementById('round-' + scrollToRound);
+      scrollToRound = null;
+      if (el) el.scrollIntoView();
+    }
+  }
+
+  /* ---------- Acciones ---------- */
+  function generateSession() {
+    var err = document.getElementById('err');
+    if (!data.seasons.some(function (x) { return x.id === draft.seasonId; })) { err.textContent = 'Elige la temporada de la jornada.'; return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.date)) { err.textContent = 'Elige la fecha de la jornada.'; return; }
+    var s = { id: uid(), created: Date.now(), seasonId: draft.seasonId, date: draft.date, mode: draft.mode, pairing: draft.mode === 'americano' ? draft.pairing : null,
+      target: draft.mode === 'americano' ? draft.target : null, name: draft.name.trim().replace(/\s+/g, ' ').slice(0, 40), entrants: [], rounds: [], stats: null };
+    var built;
+    if (draft.mode === 'sets' || draft.pairing === 'fixed') {
+      var flat = [], pairs = draft.pairs.slice(0, pairCount());
+      for (var i = 0; i < pairs.length; i++) {
+        if (!pairs[i][0] || !pairs[i][1]) { err.textContent = 'Completa los dos jugadores de la pareja ' + (i + 1) + '.'; return; }
+        flat.push(pairs[i][0], pairs[i][1]);
+      }
+      if (new Set(flat).size !== flat.length) { err.textContent = 'Cada jugador solo puede estar en una pareja.'; return; }
+      s.entrants = pairs.map(function (p) { return p.slice(); });
+      built = roundRobinPairs(s.entrants);
+    } else {
+      if (draft.chosen.length !== draft.nPlayers) { err.textContent = 'Elige ' + draft.nPlayers + ' jugadores (llevas ' + draft.chosen.length + ').'; return; }
+      var R = parseInt(draft.rounds, 10) || defaultRounds(draft.nPlayers);
+      if (R < 1 || R > 30) { err.textContent = 'Las rondas deben estar entre 1 y 30.'; return; }
+      s.entrants = draft.chosen.slice();
+      var sched = americanoSchedule(s.entrants, R);
+      built = sched.rounds;
+      s.stats = { partnerRepeats: sched.partnerRepeats };
+    }
+    s.rounds = built.map(function (r) {
+      return { rest: r.rest, matches: r.matches.map(function (m) { return { id: uid() + Math.random().toString(36).slice(2, 5), a: m.a, b: m.b, res: null }; }) };
+    });
+    s.initialRounds = s.rounds.length;
+    data.sessions.push(s);
+    data.curSeason = s.seasonId; filt = s.seasonId;
+    persist();
+    var keep = { mode: draft.mode, pairing: draft.pairing, target: draft.target };
+    draft = freshDraft(); draft.mode = keep.mode; draft.pairing = keep.pairing; draft.target = keep.target;
+    toast('Jornada creada');
+    location.hash = 'jornada-' + s.id;
+  }
+
+  function addRounds(k) {
+    var s = findSession(route().sid);
+    if (!s) return;
+    var first = s.rounds.length + 1;
+    extendSession(s, k).forEach(function (r) {
+      s.rounds.push({ added: true, rest: r.rest, matches: r.matches.map(function (m) { return { id: uid() + Math.random().toString(36).slice(2, 5), a: m.a, b: m.b, res: null }; }) });
+    });
+    if (s.mode === 'americano' && s.pairing !== 'fixed') s.stats = { partnerRepeats: partnerRepeatsOf(s) };
+    persist();
+    scrollToRound = first;
+    render();
+    toast(s.mode === 'sets' ? 'Juego agregado' : (k === 1 ? 'Ronda agregada' : k + ' rondas agregadas'));
+  }
+
+  function findMatch(mid) {
+    for (var i = 0; i < data.sessions.length; i++) {
+      var ms = sessionMatches(data.sessions[i]);
+      for (var j = 0; j < ms.length; j++) if (ms[j].id === mid) return { s: data.sessions[i], m: ms[j] };
+    }
+    return null;
+  }
+
+  function openEditor(mid) {
+    var f = findMatch(mid);
+    if (!f) return;
+    var e = { mid: mid, pa: '', pb: '', sets: [['', ''], ['', ''], ['', '']] };
+    if (f.m.res && f.m.res.pts) { e.pa = String(f.m.res.pts[0]); e.pb = String(f.m.res.pts[1]); }
+    if (f.m.res && f.m.res.sets) f.m.res.sets.forEach(function (st, i) { e.sets[i] = [String(st[0]), String(st[1])]; });
+    editing = e;
+    render();
+  }
+
+  function saveResult(mid) {
+    var f = findMatch(mid), err = document.getElementById('e-err');
+    if (!f || !editing) return;
+    if (f.s.mode === 'americano') {
+      var a = Number(editing.pa), b = Number(editing.pb), t = f.s.target;
+      if (editing.pa === '' || editing.pb === '' || !Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < 0) { err.textContent = 'Escribe los puntos de las dos parejas.'; return; }
+      if (a + b !== t) { err.textContent = 'Los puntos de ambas parejas deben sumar ' + t + '.'; return; }
+      f.m.res = { pts: [a, b] };
+    } else {
+      var p = parseSets(editing.sets);
+      if (p.error) { err.textContent = p.error; return; }
+      f.m.res = { sets: p.sets };
+    }
+    editing = null;
+    persist(); render(); toast('Resultado guardado');
+  }
+
+  function validPlayer(st, selfId) {
+    var name = st.name.trim().replace(/\s+/g, ' ');
+    if (!name) return { error: 'Escribe un nombre.' };
+    if (!st.gender) return { error: 'Elige el género.' };
+    if (!st.cat) return { error: 'Elige la clasificación.' };
+    var dup = data.players.some(function (p) { return p.id !== selfId && p.name.toLowerCase() === name.toLowerCase(); });
+    if (dup) return { error: 'Ese jugador ya existe.' };
+    return { name: name };
+  }
+  function addPlayer(k) {
+    var st = pf[k], v = validPlayer(st, null);
+    if (v.error) { toast(v.error); return; }
+    data.players.push({ id: uid(), created: Date.now(), name: v.name, gender: st.gender, cat: st.cat });
+    pf[k] = { name: '', gender: '', cat: '' };
+    persist(); render(); toast(v.name + ' agregado');
+    var again = document.getElementById(k + '-name');
+    if (again) again.focus();
+  }
+  function savePlayerEdit() {
+    var st = pf.edit;
+    if (!st) return;
+    var v = validPlayer(st, st.id);
+    if (v.error) { toast(v.error); return; }
+    data.players.forEach(function (p) { if (p.id === st.id) { p.name = v.name; p.gender = st.gender; p.cat = st.cat; } });
+    pf.edit = null;
+    persist(); render(); toast('Jugador actualizado');
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]');
+    if (!el) return;
+    var act = el.getAttribute('data-act'), id = el.getAttribute('data-id');
+    if (act === 'reload') { location.reload(); }
+    else if (act === 'mode') { draft.mode = id; render(); }
+    else if (act === 'pairing') { draft.pairing = id; render(); }
+    else if (act === 'target') { draft.target = Number(id); render(); }
+    else if (act === 'chip') {
+      var i = draft.chosen.indexOf(id);
+      if (i >= 0) draft.chosen.splice(i, 1); else if (draft.chosen.length < draft.nPlayers) draft.chosen.push(id);
+      render();
+    }
+    else if (act === 'pf-set') {
+      var pk = el.getAttribute('data-k'), pfld = el.getAttribute('data-f');
+      if (pf[pk]) { pf[pk][pfld] = id; render(); }
+    }
+    else if (act === 'p-edit') {
+      var pl = data.players.filter(function (p) { return p.id === id; })[0];
+      if (pl) { pf.edit = { id: pl.id, name: pl.name, gender: pl.gender || '', cat: pl.cat || '' }; render(); }
+    }
+    else if (act === 'p-cancel') { pf.edit = null; render(); }
+    else if (act === 'round-del') { confirmRound = Number(id); render(); }
+    else if (act === 'round-del-no') { confirmRound = null; render(); }
+    else if (act === 'round-del-yes') {
+      var rs = findSession(route().sid), ri = Number(id);
+      if (rs && rs.rounds[ri] && rs.rounds[ri].added) {
+        rs.rounds.splice(ri, 1);
+        if (editing && !findMatch(editing.mid)) editing = null;
+        if (rs.mode === 'americano' && rs.pairing !== 'fixed') rs.stats = { partnerRepeats: partnerRepeatsOf(rs) };
+        persist();
+        toast('Juegos borrados');
+      }
+      confirmRound = null; render();
+    }
+    else if (act === 'edit') openEditor(id);
+    else if (act === 'cancel-ed') { editing = null; render(); }
+    else if (act === 'save-res') saveResult(id);
+    else if (act === 'clear-res') {
+      var f = findMatch(id);
+      if (f) { f.m.res = null; editing = null; persist(); render(); toast('Resultado quitado'); }
+    }
+    else if (act === 'rename') { renaming = true; render(); var r = document.getElementById('ren'); if (r) r.focus(); }
+    else if (act === 'rename-cancel') { renaming = false; render(); }
+    else if (act === 'add-more') {
+      var sel = document.getElementById('addn');
+      addRounds(sel ? parseInt(sel.value, 10) : 1);
+    }
+    else if (act === 'sess-del') { confirmSess = true; render(); }
+    else if (act === 'sess-del-no') { confirmSess = false; render(); }
+    else if (act === 'sess-del-yes') {
+      var sid = route().sid;
+      data.sessions = data.sessions.filter(function (s) { return s.id !== sid; });
+      confirmSess = false; editing = null; persist(); toast('Jornada borrada'); location.hash = 'juegos';
+    }
+    else if (act === 's-edit') {
+      var se = data.seasons.filter(function (x) { return x.id === id; })[0];
+      if (se) { seasonEdit = { id: se.id, name: se.name }; render(); var sn = document.getElementById('sedit-name'); if (sn) sn.focus(); }
+    }
+    else if (act === 's-cancel') { seasonEdit = null; render(); }
+    else if (act === 'nseason-add') {
+      var rs2 = addSeason(nsName);
+      if (rs2.error) { toast(rs2.error); }
+      else { draft.seasonId = rs2.id; nsName = ''; render(); toast('Temporada "' + rs2.name + '" creada'); }
+    }
+    else if (act === 'p-off' || act === 'p-on') {
+      var dp = data.players.filter(function (p) { return p.id === id; })[0];
+      if (dp) {
+        if (act === 'p-off') dp.disabled = true; else delete dp.disabled;
+        if (pf.edit && pf.edit.id === id) pf.edit = null;
+        persist(); render();
+        toast(act === 'p-off' ? dp.name + ' deshabilitado. Su historial se conserva.' : dp.name + ' habilitado');
+      }
+    }
+  });
+
+  var RULE_IDS = { 'r-win': 'win', 'r-draw': 'draw', 'r-loss': 'loss' };
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.hasAttribute('data-sfilter')) {
+      filt = t.value;
+      if (filt !== 'all') { data.curSeason = filt; draft.seasonId = filt; persist(); }
+      render();
+    }
+    else if (t.hasAttribute('data-dseason')) { draft.seasonId = t.value; }
+    else if (t.hasAttribute('data-jseason')) {
+      var js2 = findSession(route().sid);
+      if (js2) { js2.seasonId = t.value; persist(); toast('Jornada movida a ' + seasonName(t.value)); }
+    }
+    else if (t.hasAttribute('data-n')) {
+      var v = parseInt(t.value, 10);
+      if (t.getAttribute('data-n') === 'pairs') draft.nPairs = v; else draft.nPlayers = v;
+      render();
+    }
+    else if (t.hasAttribute('data-pair')) {
+      var ij = t.getAttribute('data-pair').split(',').map(Number);
+      draft.pairs[ij[0]][ij[1]] = t.value;
+      render();
+    }
+    else if (RULE_IDS[t.id]) {
+      var n = Math.max(0, Math.min(20, parseInt(t.value, 10)));
+      if (isNaN(n)) n = DEFAULT_RULES[RULE_IDS[t.id]];
+      data.rules[RULE_IDS[t.id]] = n;
+      persist(); render(); toast('Reglas actualizadas');
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.hasAttribute('data-code')) {
+      codeVal = t.value;
+    } else if (t.hasAttribute('data-sedit')) {
+      if (seasonEdit) seasonEdit.name = t.value;
+    } else if (t.hasAttribute('data-snew')) {
+      seasonNew = t.value;
+    } else if (t.hasAttribute('data-nsname')) {
+      nsName = t.value;
+    } else if (t.hasAttribute('data-pf')) {
+      var pk2 = t.getAttribute('data-pf');
+      if (pf[pk2]) pf[pk2].name = t.value;
+    } else if (t.hasAttribute('data-rounds')) {
+      draft.rounds = t.value;
+      var pl = document.getElementById('plan');
+      if (pl) pl.textContent = planInfo();
+    } else if (t.hasAttribute('data-date')) {
+      draft.date = t.value;
+    } else if (t.hasAttribute('data-name')) {
+      draft.name = t.value;
+    } else if (t.hasAttribute('data-ed') && editing) {
+      var key = t.getAttribute('data-ed'), other = key === 'pa' ? 'pb' : 'pa';
+      editing[key] = t.value;
+      var f = findMatch(editing.mid), n = parseInt(t.value, 10);
+      if (f && !isNaN(n) && n >= 0 && n <= f.s.target) {
+        editing[other] = String(f.s.target - n);
+        var o = document.getElementById('e-' + other);
+        if (o) o.value = editing[other];
+      }
+    } else if (t.hasAttribute('data-eset') && editing) {
+      var ij = t.getAttribute('data-eset').split(',').map(Number);
+      editing.sets[ij[0]][ij[1]] = t.value;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.id === 'nseason-name') {
+      e.preventDefault();
+      var r = addSeason(nsName);
+      if (r.error) toast(r.error);
+      else { draft.seasonId = r.id; nsName = ''; render(); toast('Temporada "' + r.name + '" creada'); }
+    }
+  });
+
+  document.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (e.target.id === 'code-form') submitCode(codeVal);
+    else if (e.target.id === 'gen-form') generateSession();
+    else if (e.target.id === 'player-form') addPlayer('main');
+    else if (e.target.id === 'quick-form') addPlayer('quick');
+    else if (e.target.id === 'edit-form') savePlayerEdit();
+    else if (e.target.id === 'sedit-form') saveSeasonEdit();
+    else if (e.target.id === 'season-form') {
+      var rs3 = addSeason(seasonNew);
+      if (rs3.error) toast(rs3.error);
+      else { seasonNew = ''; render(); toast('Temporada "' + rs3.name + '" creada'); }
+    }
+    else if (e.target.id === 'ren-form') {
+      var s = findSession(route().sid);
+      if (s) { s.name = document.getElementById('ren').value.trim().replace(/\s+/g, ' ').slice(0, 40); persist(); }
+      renaming = false; render(); toast('Nombre actualizado');
+    }
+  });
+
+  window.addEventListener('hashchange', function () {
+    confirmSess = false; renaming = false; editing = null; confirmRound = null; pf.edit = null; seasonEdit = null;
+    render(); window.scrollTo(0, 0);
+  });
+  render();
+  boot();
+})();
+</script>
+</body>
+</html>
