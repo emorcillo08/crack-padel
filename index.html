@@ -209,10 +209,11 @@ button, input, select { font: inherit; color: inherit; }
   'use strict';
 
   // VERSIÓN DE LA APP: cambia este número cada vez que subas ajustes. Aparece abajo en la pantalla y en la sección Comunidad.
-  var APP_VERSION = '2.0';
+  var APP_VERSION = '2.1';
 
   // BEGIN LOGIC
-  var DEFAULT_RULES = { win: 3, draw: 2, loss: 1 };
+  // Puntos por defecto: Victoria 3, Empate 1, Derrota 0.
+  var DEFAULT_RULES = { win: 3, draw: 1, loss: 0 };
 
   function setsResult(sets) {
     var a = 0, b = 0;
@@ -568,11 +569,20 @@ button, input, select { font: inherit; color: inherit; }
   function validCode(c) { return /^[A-HJ-NP-Z2-9]{10}$/.test(c); }
 
   // Estado en memoria de la comunidad (o del modo local) que se está usando.
-  function emptyData() { return { name: '', players: [], sessions: [], rules: { win: DEFAULT_RULES.win, draw: DEFAULT_RULES.draw, loss: DEFAULT_RULES.loss } }; }
+  function emptyData() { return { name: '', players: [], sessions: [], rules: { win: DEFAULT_RULES.win, draw: DEFAULT_RULES.draw, loss: DEFAULT_RULES.loss, v: 2 } }; }
   var data = emptyData();
 
   function num(v, d) { return typeof v === 'number' && isFinite(v) ? v : d; }
-  function normRules(r) { return { win: num(r && r.win, DEFAULT_RULES.win), draw: num(r && r.draw, DEFAULT_RULES.draw), loss: num(r && r.loss, DEFAULT_RULES.loss) }; }
+  // Reglas de puntos. La marca v:2 indica "puntos nuevos" (3/1/0). Si una comunidad todavía tiene
+  // los puntos viejos de fábrica (3/2/1) y nunca los cambió a mano, se pasan solos a 3/1/0.
+  // Si alguien puso otros valores a mano, se respetan.
+  function normRules(r) {
+    var out = { win: num(r && r.win, DEFAULT_RULES.win), draw: num(r && r.draw, DEFAULT_RULES.draw), loss: num(r && r.loss, DEFAULT_RULES.loss), v: 2 };
+    if (r && r.v !== 2 && r.win === 3 && r.draw === 2 && r.loss === 1) {
+      out.win = DEFAULT_RULES.win; out.draw = DEFAULT_RULES.draw; out.loss = DEFAULT_RULES.loss;
+    }
+    return out;
+  }
 
   // Modo local: todo se guarda solo en este teléfono.
   function loadLocal() {
@@ -1514,6 +1524,7 @@ button, input, select { font: inherit; color: inherit; }
       var n = Math.max(0, Math.min(20, parseInt(t.value, 10)));
       if (isNaN(n)) n = DEFAULT_RULES[RULE_IDS[t.id]];
       data.rules[RULE_IDS[t.id]] = n;
+      data.rules.v = 2;
       persist(); render(); toast('Reglas actualizadas');
     }
   });
