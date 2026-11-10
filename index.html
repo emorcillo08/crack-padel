@@ -39,6 +39,9 @@
   --chip: transparent;
   --chip-fg: #DDF247;
   --bad: #FF8A8A;
+  --pm-mn-bg: #FFFFFF;
+  --pm-mn-line: #FFFFFF;
+  --pm-mn-ink: #0A1322;
   --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
   --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
@@ -57,6 +60,9 @@
   --chip: #F5C000;
   --chip-fg: #1A1300;
   --bad: #C62828;
+  --pm-mn-bg: transparent;
+  --pm-mn-line: #0E1A30;
+  --pm-mn-ink: #0E1A30;
   color-scheme: light;
 }
 html, body { background: var(--bg); }
@@ -137,12 +143,33 @@ button, input, select { font: inherit; color: inherit; }
 .rh h3 { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; }
 .rest { font-size: 12px; color: var(--muted); text-align: right; }
 .match { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
-.mact { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+.mact { display: flex; justify-content: flex-end; gap: 8px; align-items: center; flex-wrap: wrap; }
 .editor { background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .pts-ed { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pts-ed input { text-align: center; font-family: var(--font-display); font-size: 26px; min-height: 52px; }
 .editor .acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+/* Marcador en vivo (Americano): botones + y − grandes para ir sumando puntos durante el juego.
+   El + usa el color de Guardar; el − es blanco en oscuro y con aro en claro. */
+.lv { gap: 12px; }
+.lv-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.lv-nm { font-weight: 700; overflow-wrap: anywhere; }
+.lv-ct { display: flex; align-items: center; gap: 8px; }
+.lv-n { font-family: var(--font-display); font-weight: 700; font-size: 44px; line-height: 1; min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+.pm { position: relative; flex: none; width: 56px; height: 56px; padding: 0; margin: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; display: grid; place-items: center; -webkit-tap-highlight-color: transparent; }
+.pm .dc { position: relative; display: block; width: 52px; height: 52px; border-radius: 50%; }
+.pm.pl .dc { background: var(--ball); border: 2px solid var(--ball); }
+.pm.mn .dc { background: var(--pm-mn-bg); border: 2px solid var(--pm-mn-line); }
+.pm .dc i { position: absolute; left: 50%; top: 50%; width: 22px; height: 4px; margin: -2px 0 0 -11px; border-radius: 2px; }
+.pm .dc i.v { width: 4px; height: 22px; margin: -11px 0 0 -2px; }
+.pm.pl .dc i { background: var(--ball-ink); }
+.pm.mn .dc i { background: var(--pm-mn-ink); }
+.pm:active .dc { transform: scale(.92); }
+.lv-bar { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.lv-bar i { display: block; height: 100%; background: var(--ball); }
+.lv-tot { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
+.lv-tot b { color: var(--lead); }
 
 /* Formularios */
 .form { display: flex; flex-direction: column; gap: 18px; }
@@ -247,7 +274,7 @@ button, input, select { font: inherit; color: inherit; }
   'use strict';
 
   // VERSIÓN DE LA APP: cambia este número cada vez que subas ajustes. Aparece abajo en la pantalla y en la sección Comunidad.
-  var APP_VERSION = '2.2';
+  var APP_VERSION = '2.4';
 
   // BEGIN LOGIC
   // Puntos por defecto: Victoria 3, Empate 1, Derrota 0.
@@ -313,11 +340,13 @@ button, input, select { font: inherit; color: inherit; }
     return m;
   }
 
-  // Rondas recomendadas en Americano individual: que cada jugador haga pareja con todos una vez.
+  // Rondas recomendadas en Americano individual: que cada jugador haga pareja con todos, sin repetir pareja.
+  // Si la cuenta no sale exacta (ej. 6 jugadores: 15 parejas posibles / 2 por ronda = 7,5), se redondea hacia abajo
+  // para que no se repita ninguna pareja. Siempre se puede escribir otro número en el campo de rondas.
   function defaultRounds(n) {
     var m = Math.floor(n / 4);
     if (m < 1) return 0;
-    return Math.ceil((n * (n - 1) / 2) / (2 * m));
+    return Math.max(1, Math.floor((n * (n - 1) / 2) / (2 * m)));
   }
 
   // Todas las parejas contra todas (método del círculo). Si son impares, una descansa cada ronda.
@@ -820,6 +849,31 @@ button, input, select { font: inherit; color: inherit; }
   var editing = null;
   var scrollToRound = null;
   var confirmRound = null;
+
+  // Marcador en vivo (Americano). live = juego con el marcador abierto { mid, ask, err }.
+  // La cuenta en curso se guarda solo en este teléfono hasta que se toca Guardar;
+  // el resultado se guarda igual que con Registrar ({ pts: [a, b] }).
+  var live = null;
+  var LIVE_KEY = 'crack-padel-live';
+  var liveCounts = {};
+  try { liveCounts = JSON.parse(localStorage.getItem(LIVE_KEY)) || {}; } catch (e) {}
+  if (!liveCounts || typeof liveCounts !== 'object' || Array.isArray(liveCounts)) liveCounts = {};
+  function saveLiveCounts() { try { localStorage.setItem(LIVE_KEY, JSON.stringify(liveCounts)); } catch (e) {} }
+  function pendingCount(mid) {
+    var c = liveCounts[mid];
+    return Array.isArray(c) && c.length === 2 && Number.isInteger(c[0]) && Number.isInteger(c[1]) && c[0] >= 0 && c[1] >= 0 ? c : null;
+  }
+  function liveBase(m) { return m.res && m.res.pts ? [m.res.pts[0], m.res.pts[1]] : [0, 0]; }
+  function liveCount(m, t) {
+    var c = pendingCount(m.id);
+    return c && c[0] + c[1] <= t ? c.slice() : liveBase(m);
+  }
+  function setLiveCount(m, c) {
+    var b = liveBase(m);
+    if (c[0] === b[0] && c[1] === b[1]) delete liveCounts[m.id]; else liveCounts[m.id] = [c[0], c[1]];
+    saveLiveCounts();
+  }
+  function clearLiveCount(mid) { if (mid in liveCounts) { delete liveCounts[mid]; saveLiveCounts(); } }
   var GENDER = { H: 'Hombre', M: 'Mujer' };
   var CATS = { amigos: 'Amigos', trabajo: 'Trabajo', externo: 'Externo' };
   var pf = freshPf();
@@ -938,7 +992,7 @@ button, input, select { font: inherit; color: inherit; }
   function freshPick() { return { view: 'home', name: '', code: '', busy: false, msg: '', forget: null }; }
 
   function resetUi() {
-    editing = null; renaming = false; renamingCom = false; confirmSess = false; confirmRound = null;
+    editing = null; live = null; renaming = false; renamingCom = false; confirmSess = false; confirmRound = null;
     pf = freshPf(); draft = freshDraft(); pendingRender = false;
   }
 
@@ -1205,11 +1259,44 @@ button, input, select { font: inherit; color: inherit; }
       (m.res ? '<button class="btn small danger" data-act="clear-res" data-id="' + m.id + '">Quitar resultado</button>' : '') + '</div>';
   }
 
+  // Marcador en vivo: + y − por pareja, barra de avance y Guardar (los puntos deben sumar el total del juego).
+  var MINUS_ICON = '<span class="dc" aria-hidden="true"><i></i></span>';
+  var PLUS_ICON = '<span class="dc" aria-hidden="true"><i></i><i class="v"></i></span>';
+  function liveHtml(s, m) {
+    var t = s.target, c = liveCount(m, t), sum = c[0] + c[1], left = t - sum;
+    var rows = [m.a, m.b].map(function (ids, j) {
+      var nm = ids.map(nameOf).join(' · ');
+      return '<div class="lv-row"><span class="lv-nm">' + esc(nm) + '</span><div class="lv-ct">' +
+        '<button type="button" class="pm mn" data-act="live-minus" data-id="' + m.id + '" data-side="' + j + '" aria-label="' + esc('Quitar un punto a ' + nm) + '">' + MINUS_ICON + '</button>' +
+        '<span class="lv-n">' + c[j] + '</span>' +
+        '<button type="button" class="pm pl" data-act="live-plus" data-id="' + m.id + '" data-side="' + j + '" aria-label="' + esc('Sumar un punto a ' + nm) + '">' + PLUS_ICON + '</button></div></div>';
+    }).join('');
+    var acts = live.ask
+      ? '<span class="confirm">¿Volver a 0 a 0? <button class="btn small danger" data-act="live-reset-yes" data-id="' + m.id + '">Sí</button><button class="btn small ghost" data-act="live-reset-no" data-id="' + m.id + '">No</button></span>'
+      : '<button class="btn small" data-act="live-save" data-id="' + m.id + '">Guardar</button>' +
+        '<button class="btn small ghost" data-act="live-close" data-id="' + m.id + '">Cerrar</button>' +
+        '<button class="btn small ghost" data-act="live-reset" data-id="' + m.id + '">Reiniciar</button>';
+    return '<div class="editor lv">' + rows +
+      '<div class="lv-bar"><i style="width:' + Math.min(100, Math.round(sum / t * 100)) + '%"></i></div>' +
+      '<div class="lv-tot"><span>' + sum + ' de ' + t + ' puntos</span><b>' + (left > 0 ? 'Faltan ' + left : 'Juego completo') + '</b></div>' +
+      '<p class="err" role="alert">' + esc(live.err || '') + '</p><div class="acts">' + acts + '</div></div>';
+  }
+
   function matchHtml(s, m) {
     var isEd = editing && editing.mid === m.id;
-    return '<article class="match">' + scoreLines(m) +
-      (isEd ? editorHtml(s, m) : '<div class="mact"><button class="btn small ghost" data-act="edit" data-id="' + m.id + '">' + (m.res ? 'Editar' : 'Registrar') + '</button></div>') +
-      '</article>';
+    var isLive = s.mode === 'americano' && live && live.mid === m.id;
+    var body;
+    if (isLive) body = liveHtml(s, m);
+    else if (isEd) body = editorHtml(s, m);
+    else {
+      var lb = '';
+      if (s.mode === 'americano') {
+        var pend = pendingCount(m.id);
+        lb = '<button class="btn small ghost" data-act="live-open" data-id="' + m.id + '">Marcador en vivo' + (pend ? ' · ' + pend[0] + '-' + pend[1] : '') + '</button>';
+      }
+      body = '<div class="mact">' + lb + '<button class="btn small ghost" data-act="edit" data-id="' + m.id + '">' + (m.res ? 'Editar' : 'Registrar') + '</button></div>';
+    }
+    return '<article class="match">' + scoreLines(m) + body + '</article>';
   }
 
   function addMoreHtml(s, p) {
@@ -1429,7 +1516,34 @@ button, input, select { font: inherit; color: inherit; }
     if (f.m.res && f.m.res.pts) { e.pa = String(f.m.res.pts[0]); e.pb = String(f.m.res.pts[1]); }
     if (f.m.res && f.m.res.sets) f.m.res.sets.forEach(function (st, i) { e.sets[i] = [String(st[0]), String(st[1])]; });
     editing = e;
+    live = null;
     render();
+  }
+
+  // Marcador en vivo: sumar o quitar un punto (side 0 = primera pareja, 1 = segunda).
+  function liveStep(mid, side, d) {
+    var f = findMatch(mid);
+    if (!f || !live || live.mid !== mid || (side !== 0 && side !== 1)) return;
+    var t = f.s.target, c = liveCount(f.m, t);
+    live.err = '';
+    if (d > 0 && c[0] + c[1] >= t) live.err = 'Ya suman ' + t + '. Si hubo un error, usa el botón −.';
+    else if (d < 0 && c[side] === 0) live.err = (side ? f.m.b : f.m.a).map(nameOf).join(' · ') + ' ya está en 0.';
+    else { c[side] += d; setLiveCount(f.m, c); }
+    render();
+  }
+  // Guarda el resultado del marcador en vivo, igual que Registrar.
+  function liveSave(mid) {
+    var f = findMatch(mid);
+    if (!f || !live || live.mid !== mid) return;
+    var t = f.s.target, c = liveCount(f.m, t), sum = c[0] + c[1];
+    if (sum !== t) {
+      live.err = 'Faltan ' + (t - sum) + (t - sum === 1 ? ' punto' : ' puntos') + ' para llegar a ' + t + '.';
+      render(); return;
+    }
+    f.m.res = { pts: [c[0], c[1]] };
+    clearLiveCount(mid);
+    live = null;
+    persist(); render(); toast('Resultado guardado');
   }
 
   function saveResult(mid) {
@@ -1440,6 +1554,7 @@ button, input, select { font: inherit; color: inherit; }
       if (editing.pa === '' || editing.pb === '' || !Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < 0) { err.textContent = 'Escribe los puntos de las dos parejas.'; return; }
       if (a + b !== t) { err.textContent = 'Los puntos de ambas parejas deben sumar ' + t + '.'; return; }
       f.m.res = { pts: [a, b] };
+      clearLiveCount(mid);
     } else {
       var p = parseSets(editing.sets);
       if (p.error) { err.textContent = p.error; return; }
@@ -1530,8 +1645,10 @@ button, input, select { font: inherit; color: inherit; }
     else if (act === 'round-del-yes') {
       var rs = findSession(route().sid), ri = Number(id);
       if (rs && rs.rounds[ri] && rs.rounds[ri].added) {
+        rs.rounds[ri].matches.forEach(function (m) { clearLiveCount(m.id); });
         rs.rounds.splice(ri, 1);
         if (editing && !findMatch(editing.mid)) editing = null;
+        if (live && !findMatch(live.mid)) live = null;
         if (rs.mode === 'americano' && rs.pairing !== 'fixed') rs.stats = { partnerRepeats: partnerRepeatsOf(rs) };
         persist();
         toast('Juegos borrados');
@@ -1543,7 +1660,21 @@ button, input, select { font: inherit; color: inherit; }
     else if (act === 'save-res') saveResult(id);
     else if (act === 'clear-res') {
       var f = findMatch(id);
-      if (f) { f.m.res = null; editing = null; persist(); render(); toast('Resultado quitado'); }
+      if (f) { f.m.res = null; clearLiveCount(id); editing = null; persist(); render(); toast('Resultado quitado'); }
+    }
+    else if (act === 'live-open') {
+      if (findMatch(id)) { editing = null; live = { mid: id, ask: false, err: '' }; render(); }
+    }
+    else if (act === 'live-plus' || act === 'live-minus') { liveStep(id, Number(el.getAttribute('data-side')), act === 'live-plus' ? 1 : -1); }
+    else if (act === 'live-save') { liveSave(id); }
+    else if (act === 'live-close') { live = null; render(); }
+    else if (act === 'live-reset') { if (live) { live.ask = true; live.err = ''; render(); } }
+    else if (act === 'live-reset-no') { if (live) { live.ask = false; render(); } }
+    else if (act === 'live-reset-yes') {
+      var lf = findMatch(id);
+      if (lf) setLiveCount(lf.m, [0, 0]);
+      if (live) { live.ask = false; live.err = ''; }
+      render();
     }
     else if (act === 'rename') { renaming = true; render(); var r = document.getElementById('ren'); if (r) r.focus(); }
     else if (act === 'rename-cancel') { renaming = false; render(); }
@@ -1554,9 +1685,10 @@ button, input, select { font: inherit; color: inherit; }
     else if (act === 'sess-del') { confirmSess = true; render(); }
     else if (act === 'sess-del-no') { confirmSess = false; render(); }
     else if (act === 'sess-del-yes') {
-      var sid = route().sid;
+      var sid = route().sid, ds = findSession(sid);
+      if (ds) sessionMatches(ds).forEach(function (m) { clearLiveCount(m.id); });
       data.sessions = data.sessions.filter(function (s) { return s.id !== sid; });
-      confirmSess = false; editing = null; persist(); toast('Jornada borrada'); location.hash = 'juegos';
+      confirmSess = false; editing = null; live = null; persist(); toast('Jornada borrada'); location.hash = 'juegos';
     }
     else if (act === 'p-off' || act === 'p-on') {
       var dp = data.players.filter(function (p) { return p.id === id; })[0];
@@ -1663,7 +1795,7 @@ button, input, select { font: inherit; color: inherit; }
   });
 
   window.addEventListener('hashchange', function () {
-    confirmSess = false; renaming = false; renamingCom = false; editing = null; confirmRound = null; pf.edit = null;
+    confirmSess = false; renaming = false; renamingCom = false; editing = null; live = null; confirmRound = null; pf.edit = null;
     render(); window.scrollTo(0, 0);
   });
 
