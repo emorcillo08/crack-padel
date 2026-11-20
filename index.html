@@ -149,6 +149,19 @@ button, input, select { font: inherit; color: inherit; }
 .pts-ed input { text-align: center; font-family: var(--font-display); font-size: 26px; min-height: 52px; }
 .editor .acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.warn { font-size: 13px; color: var(--fg); margin-top: 12px; padding: 10px 12px; background: var(--raise); border: 1px solid var(--line); border-left: 3px solid var(--ball); border-radius: 10px; }
+.warn.top { margin: -4px 0 4px; }
+/* Juegos que le tocan a cada jugador, arriba de la jornada */
+.toca { font-size: 15px; font-weight: 700; color: var(--lead); margin: -4px 0 4px; }
+/* Selector de rondas con − y + (al crear la jornada y al agregar juegos) */
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepper input { width: 86px; min-height: 52px; padding: 0 4px; text-align: center; font-family: var(--font-display); font-size: 30px; font-weight: 700; color: var(--fg); background: var(--raise); border: 1px solid var(--line); border-radius: 10px; -moz-appearance: textfield; appearance: textfield; }
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper .pm:disabled { opacity: .35; cursor: default; }
+.stepu { font-size: 14px; color: var(--muted); }
+.snap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.addfb { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.addfb .snap { margin-top: 0; }
 
 /* Marcador en vivo (Americano): botones + y − grandes para ir sumando puntos durante el juego.
    El + usa el color de Guardar; el − es blanco en oscuro y con aro en claro. */
@@ -274,7 +287,7 @@ button, input, select { font: inherit; color: inherit; }
   'use strict';
 
   // VERSIÓN DE LA APP: cambia este número cada vez que subas ajustes. Aparece abajo en la pantalla y en la sección Comunidad.
-  var APP_VERSION = '2.4';
+  var APP_VERSION = '2.6';
 
   // BEGIN LOGIC
   // Puntos por defecto: Victoria 3, Empate 1, Derrota 0.
@@ -340,13 +353,33 @@ button, input, select { font: inherit; color: inherit; }
     return m;
   }
 
-  // Rondas recomendadas en Americano individual: que cada jugador haga pareja con todos, sin repetir pareja.
-  // Si la cuenta no sale exacta (ej. 6 jugadores: 15 parejas posibles / 2 por ronda = 7,5), se redondea hacia abajo
-  // para que no se repita ninguna pareja. Siempre se puede escribir otro número en el campo de rondas.
+  function gcd(a, b) { while (b) { var t = a % b; a = b; b = t; } return a; }
+
+  // Americano individual: cada cuántas rondas vuelven a quedar todos con los mismos juegos.
+  // Ej. 6 jugadores en 1 cancha: juegan 4 y descansan 2 por ronda; cada 3 rondas los 6 descansaron una vez.
+  // Con 4, 8, 12 o 16 jugadores nadie descansa, así que cualquier número de rondas sirve (1).
+  function equalRoundsStep(n) {
+    var m = Math.floor(n / 4);
+    if (m < 1) return 1;
+    return n / gcd(n, 4 * m);
+  }
+
+  // Rondas recomendadas en Americano individual: que todos jueguen la misma cantidad de juegos y, dentro de eso,
+  // las más posibles sin repetir pareja. Ej. 6 jugadores: 15 parejas posibles / 2 por ronda = 7,5, pero con 7 rondas
+  // 2 jugadores juegan un juego menos; por eso se recomiendan 6 (cada uno juega 4).
+  // Siempre se puede escribir otro número en el campo de rondas.
   function defaultRounds(n) {
     var m = Math.floor(n / 4);
     if (m < 1) return 0;
-    return Math.max(1, Math.floor((n * (n - 1) / 2) / (2 * m)));
+    var step = equalRoundsStep(n), noRepeat = Math.floor((n * (n - 1) / 2) / (2 * m));
+    return Math.max(step, Math.floor(noRepeat / step) * step);
+  }
+
+  // Cuántos juegos le tocan a cada jugador con R rondas (Americano individual). Los descansos se reparten parejo,
+  // así que la diferencia es como mucho de 1 juego: "extra" jugadores juegan base + 1 y los demás juegan base.
+  function gamesSplit(n, R) {
+    var m = Math.floor(n / 4), slots = R * 4 * m;
+    return { base: Math.floor(slots / n), extra: slots % n };
   }
 
   // Todas las parejas contra todas (método del círculo). Si son impares, una descansa cada ronda.
@@ -504,6 +537,85 @@ button, input, select { font: inherit; color: inherit; }
       return out;
     }
     return americanoGeneric(s.entrants, k, americanoState(s)).rounds;
+  }
+
+  // ¿La jornada se cuenta por parejas (parejas fijas o sets) o por jugador (Americano individual)?
+  function byPairs(s) { return s.mode === 'sets' || s.pairing === 'fixed'; }
+  function pairKey(p) { return p.slice().sort().join('|'); }
+  function allEqual(arr) { return arr.every(function (x) { return x === arr[0]; }); }
+
+  // Juegos que le tocan a cada uno según las rondas armadas, tengan o no resultado.
+  // Devuelve un número por cada inscrito, en el mismo orden de s.entrants (jugadores o parejas).
+  function gamesByEntrant(s) {
+    var pairsMode = byPairs(s), idx = {}, g = s.entrants.map(function () { return 0; });
+    s.entrants.forEach(function (e, i) { idx[pairsMode ? pairKey(e) : e] = i; });
+    s.rounds.forEach(function (r) {
+      r.matches.forEach(function (m) {
+        var keys = pairsMode ? [pairKey(m.a), pairKey(m.b)] : m.a.concat(m.b);
+        keys.forEach(function (k) { if (idx[k] !== undefined) g[idx[k]]++; });
+      });
+    });
+    return g;
+  }
+
+  // Juegos que tendría cada uno si se agregan k rondas con "Agregar juegos". Sigue la misma regla que extendSession:
+  // en individual descansan los que menos han descansado; en parejas fijas sigue la vuelta de todas contra todas.
+  function gamesAfterAdding(s, k) {
+    var g = gamesByEntrant(s), i, j;
+    if (s.mode !== 'americano') return g;
+    if (s.pairing === 'fixed') {
+      var rr = roundRobinPairs(s.entrants), idx = {}, start = s.rounds.length;
+      s.entrants.forEach(function (e, ix) { idx[pairKey(e)] = ix; });
+      for (i = 0; i < k; i++) {
+        rr[(start + i) % rr.length].matches.forEach(function (m) { g[idx[pairKey(m.a)]]++; g[idx[pairKey(m.b)]]++; });
+      }
+      return g;
+    }
+    var n = s.entrants.length, restN = n - 4 * Math.floor(n / 4), rests = americanoState(s).rests;
+    var order = s.entrants.map(function (_, ix) { return ix; });
+    for (i = 0; i < k; i++) {
+      order.sort(function (x, y) { return rests[x] - rests[y]; });
+      for (j = 0; j < n; j++) { if (j < restN) rests[order[j]]++; else g[order[j]]++; }
+    }
+    return g;
+  }
+
+  // Cuántas rondas hay que agregar para que todos queden con los mismos juegos.
+  // 0 si ya están parejos; -1 si no se logra agregando hasta 'limit' rondas.
+  function roundsToEven(s, limit) {
+    if (s.mode !== 'americano' || allEqual(gamesByEntrant(s))) return 0;
+    for (var k = 1; k <= limit; k++) if (allEqual(gamesAfterAdding(s, k))) return k;
+    return -1;
+  }
+
+  // Cantidades de rondas (de 1 a limit) que, al agregarlas, dejan a todos con los mismos juegos.
+  function evenAdds(s, limit) {
+    var out = [];
+    for (var k = 1; k <= limit; k++) if (allEqual(gamesAfterAdding(s, k))) out.push(k);
+    return out;
+  }
+
+  // Rondas que la app sugiere agregar: lo mismo que al crear la jornada si así todos quedan iguales;
+  // si no, la primera cantidad con la que todos quedan iguales.
+  function suggestedAdd(s) {
+    var init = Math.max(1, Math.min(30, s.initialRounds || s.rounds.length || 1));
+    if (s.mode !== 'americano' || allEqual(gamesAfterAdding(s, init))) return init;
+    var ev = evenAdds(s, 30);
+    return ev.length ? ev[0] : init;
+  }
+
+  // Rondas (de 1 a 30) con las que todos juegan lo mismo al crear un Americano individual de n jugadores.
+  function evenRoundsList(n) {
+    var step = equalRoundsStep(n), out = [];
+    for (var v = step; v <= 30; v += step) out.push(v);
+    return out;
+  }
+
+  // De una lista de cantidades parejas, la que queda justo debajo y la que queda justo encima de v.
+  function evenNeighbors(list, v) {
+    var lo = null, hi = null;
+    list.forEach(function (x) { if (x < v) lo = x; if (x > v && hi === null) hi = x; });
+    return [lo, hi].filter(function (x) { return x !== null; });
   }
 
   function addCounts(x, o, side, pts) {
@@ -849,6 +961,9 @@ button, input, select { font: inherit; color: inherit; }
   var editing = null;
   var scrollToRound = null;
   var confirmRound = null;
+  // Selector de rondas: addK = rondas elegidas en "Agregar juegos" (null = la que sugiere la app).
+  // confirmAdd / confirmGen = se está pidiendo confirmar una cantidad con la que no todos juegan lo mismo.
+  var addK = null, confirmAdd = false, confirmGen = false;
 
   // Marcador en vivo (Americano). live = juego con el marcador abierto { mid, ask, err }.
   // La cuenta en curso se guarda solo en este teléfono hasta que se toca Guardar;
@@ -978,13 +1093,74 @@ button, input, select { font: inherit; color: inherit; }
     if (draft.mode === 'sets') return '2 parejas · 1 juego a sets. Luego puedes agregar más juegos.';
     if (draft.pairing === 'fixed') {
       var M = draft.nPairs, rounds = M % 2 ? M : M - 1, games = M * (M - 1) / 2;
-      return M + ' parejas fijas · ' + rounds + (rounds === 1 ? ' ronda' : ' rondas') + ' · ' + games + (games === 1 ? ' juego' : ' juegos') + ' a ' + draft.target + ' puntos, todas contra todas';
+      return M + ' parejas fijas · ' + rounds + (rounds === 1 ? ' ronda' : ' rondas') + ' · ' + games + (games === 1 ? ' juego' : ' juegos') + ' a ' + draft.target + ' puntos, todas contra todas · cada pareja juega ' + juegosTxt(M - 1);
     }
-    var N = draft.nPlayers, m = Math.floor(N / 4), R = parseInt(draft.rounds, 10) || defaultRounds(N);
-    R = Math.max(1, Math.min(30, R));
+    var N = draft.nPlayers, m = Math.floor(N / 4), R = draftRounds();
     var txt = N + ' jugadores · ' + R + (R === 1 ? ' ronda' : ' rondas') + ' · ' + (R * m) + (R * m === 1 ? ' juego' : ' juegos') + ' a ' + draft.target + ' puntos';
     if (N - 4 * m) txt += ' · ' + (N - 4 * m) + (N - 4 * m === 1 ? ' descansa' : ' descansan') + ' por ronda';
-    return txt;
+    var sp = gamesSplit(N, R);
+    if (!sp.extra) return txt + ' · cada uno juega ' + juegosTxt(sp.base);
+    // No sale parejo: se avisa y se sugieren las rondas más cercanas en las que todos juegan lo mismo.
+    var step = equalRoundsStep(N), lo = Math.floor(R / step) * step, hi = lo + step, ok = [];
+    if (lo >= 1) ok.push(lo);
+    if (hi <= 30) ok.push(hi);
+    var few = N - sp.extra;
+    return txt + '. Ojo: así ' + few + (few === 1 ? ' jugador juega ' : ' jugadores juegan ') + juegosTxt(sp.base) + ' y ' +
+      (sp.extra === 1 ? 'el otro juega ' : 'los otros ' + sp.extra + ' juegan ') + (sp.base + 1) + '. Para que todos jueguen lo mismo, usa ' + ok.join(' o ') + ' rondas.';
+  }
+  function juegosTxt(n) { return n + (n === 1 ? ' juego' : ' juegos'); }
+  function rondasTxt(n) { return n + (n === 1 ? ' ronda' : ' rondas'); }
+  // "3, 6, 9, 12…" o "11 o 22"
+  function listTxt(vals, more) {
+    if (more) return vals.join(', ') + '…';
+    return vals.length < 2 ? vals.join('') : vals.slice(0, -1).join(', ') + ' o ' + vals[vals.length - 1];
+  }
+  // Rondas elegidas al crear un Americano individual (vacío = las recomendadas), entre 1 y 30.
+  function draftRounds() {
+    var R = parseInt(draft.rounds, 10);
+    if (!R) R = defaultRounds(draft.nPlayers);
+    return Math.max(1, Math.min(30, R));
+  }
+
+  // Selector de rondas: − y + mueven de 1 en 1; en el medio se puede escribir el número.
+  function stepperHtml(key, val) {
+    var n = parseInt(val, 10);
+    return '<div class="stepper">' +
+      '<button type="button" class="pm mn" data-act="step" data-k="' + key + '" data-id="-1" aria-label="Una ronda menos"' + (n <= 1 ? ' disabled' : '') + '>' + MINUS_ICON + '</button>' +
+      '<input id="' + key + '-rounds" type="number" inputmode="numeric" min="1" max="30" data-stepk="' + key + '" value="' + esc(val) + '" aria-label="Rondas">' +
+      '<button type="button" class="pm pl" data-act="step" data-k="' + key + '" data-id="1" aria-label="Una ronda más"' + (n >= 30 ? ' disabled' : '') + '>' + PLUS_ICON + '</button>' +
+      '<span class="stepu">' + (n === 1 ? 'ronda' : 'rondas') + '</span></div>';
+  }
+  // Botones para volver a una cantidad con la que todos juegan lo mismo.
+  function snapHtml(key, vals) {
+    if (!vals.length) return '';
+    return '<div class="snap">' + vals.map(function (v) {
+      return '<button type="button" class="chip" data-act="snap" data-k="' + key + '" data-id="' + v + '">Usar ' + rondasTxt(v) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  // Nueva jornada (Americano individual): selector de rondas y cuáles dejan a todos iguales.
+  function roundsPickerHtml() {
+    var N = draft.nPlayers, ev = evenRoundsList(N), def = defaultRounds(N), rule;
+    if (equalRoundsStep(N) === 1) rule = 'Con ' + N + ' jugadores nadie descansa: con cualquier cantidad de rondas todos juegan lo mismo (recomendado: ' + def + ').';
+    else rule = 'Con ' + N + ' jugadores todos juegan lo mismo con ' + listTxt(ev.slice(0, 4), ev.length > 4) + ' rondas (recomendado: ' + def + ').';
+    return '<div class="group"><h3>Rondas</h3>' + stepperHtml('gen', draft.rounds === '' ? def : draft.rounds) + '<p class="count">' + esc(rule) + '</p></div>';
+  }
+  // Resumen de la jornada; si con esas rondas no todos juegan lo mismo, botones para volver a una cantidad pareja.
+  function planBoxHtml() {
+    var html = '<p class="plan" id="plan">' + esc(planInfo()) + '</p>';
+    if (draft.mode === 'americano' && draft.pairing !== 'fixed' && gamesSplit(draft.nPlayers, draftRounds()).extra) {
+      html += snapHtml('gen', evenNeighbors(evenRoundsList(draft.nPlayers), draftRounds()));
+    }
+    return html;
+  }
+  // Botón Generar; si las rondas no dejan a todos iguales, primero pide confirmar.
+  function genActHtml() {
+    if (confirmGen && draft.mode === 'americano' && draft.pairing !== 'fixed') {
+      return '<div class="confirm">Con ' + rondasTxt(draftRounds()) + ' no todos juegan lo mismo. ¿Generar igual? ' +
+        '<button class="btn small danger" type="submit">Sí, generar</button><button class="btn small ghost" type="button" data-act="gen-no">No</button></div>';
+    }
+    return '<button class="btn block" type="submit" id="gen-btn">Generar juegos</button>';
   }
 
   /* ---------- Pantalla de inicio (elegir comunidad) ---------- */
@@ -993,6 +1169,7 @@ button, input, select { font: inherit; color: inherit; }
 
   function resetUi() {
     editing = null; live = null; renaming = false; renamingCom = false; confirmSess = false; confirmRound = null;
+    addK = null; confirmAdd = false; confirmGen = false;
     pf = freshPf(); draft = freshDraft(); pendingRender = false;
   }
 
@@ -1227,12 +1404,12 @@ button, input, select { font: inherit; color: inherit; }
       }).join('') + '</div><p class="count">Elegidos ' + draft.chosen.length + ' de ' + draft.nPlayers +
         (sortedPlayers().length < draft.nPlayers ? '. Solo tienes ' + sortedPlayers().length + ' jugadores activos: agrega los que faltan abajo.' : '') + '</p></div>';
       html += quickHtml();
-      html += '<label class="field" for="nrounds"><span>Rondas (déjalo vacío para usar las recomendadas: ' + defaultRounds(draft.nPlayers) + ')</span><input id="nrounds" type="number" inputmode="numeric" min="1" max="30" data-rounds value="' + esc(draft.rounds) + '" placeholder="' + defaultRounds(draft.nPlayers) + '"></label>';
     }
     html += '<label class="field" for="nname"><span>Nombre de la jornada (opcional)</span><input id="nname" type="text" maxlength="40" data-name value="' + esc(draft.name) + '" placeholder="Ej. Birria de amigos 1" autocomplete="off"></label>' +
-      '<label class="field" for="ndate"><span>Fecha</span><input id="ndate" type="date" data-date value="' + esc(draft.date) + '"></label>' +
-      '<p class="plan" id="plan">' + esc(planInfo()) + '</p><p class="err" id="err" role="alert"></p>' +
-      '<button class="btn block" type="submit" id="gen-btn">Generar juegos</button></form>';
+      '<label class="field" for="ndate"><span>Fecha</span><input id="ndate" type="date" data-date value="' + esc(draft.date) + '"></label>';
+    if (!isSets && !fixed) html += roundsPickerHtml();
+    html += '<div id="plan-box">' + planBoxHtml() + '</div><p class="err" id="err" role="alert"></p>' +
+      '<div id="gen-act">' + genActHtml() + '</div></form>';
     return html;
   }
 
@@ -1299,6 +1476,68 @@ button, input, select { font: inherit; color: inherit; }
     return '<article class="match">' + scoreLines(m) + body + '</article>';
   }
 
+  // "Ana, Beto y Caro"
+  function joinY(list) { return list.length < 2 ? list.join('') : list.slice(0, -1).join(', ') + ' y ' + list[list.length - 1]; }
+
+  // Agrupa por cantidad de juegos, de más a menos: [{ n: 5, names: ['Ana', 'Beto'] }, { n: 4, names: ['Caro'] }].
+  function groupByGames(s, g) {
+    var fixed = s.pairing === 'fixed', by = {};
+    s.entrants.forEach(function (e, i) { (by[g[i]] = by[g[i]] || []).push(fixed ? e.map(nameOf).join(' · ') : nameOf(e)); });
+    return Object.keys(by).map(Number).sort(function (a, b) { return b - a; }).map(function (n) { return { n: n, names: by[n] }; });
+  }
+  // "A Ana, Beto y Eva les tocan 5 juegos; a Caro y Dani, 4."
+  function tocanTxt(s, g) {
+    return groupByGames(s, g).map(function (gr, i) {
+      if (i) return 'a ' + joinY(gr.names) + ', ' + gr.n;
+      return 'A ' + joinY(gr.names) + (gr.names.length === 1 && s.pairing !== 'fixed' ? ' le tocan ' : ' les tocan ') + juegosTxt(gr.n);
+    }).join('; ') + '.';
+  }
+  // "Ana y Beto con 6 juegos; Caro y Dani, con 5."
+  function quedanTxt(s, g) {
+    return groupByGames(s, g).map(function (gr, i) {
+      return joinY(gr.names) + (i ? ', con ' + gr.n : ' con ' + juegosTxt(gr.n));
+    }).join('; ') + '.';
+  }
+
+  // Arriba de la jornada: cuántos juegos le tocan a cada uno. Si no son iguales, a quién cuántos y cuántas rondas agregar para emparejar.
+  function gamesInfoHtml(s) {
+    if (s.mode !== 'americano' || !s.rounds.length) return '';
+    var g = gamesByEntrant(s), fixed = s.pairing === 'fixed';
+    if (allEqual(g)) {
+      var rest = s.rounds.length - g[0];
+      return '<p class="toca">' + (fixed ? 'A cada pareja le tocan ' : 'A cada jugador le tocan ') + juegosTxt(g[0]) +
+        (rest > 0 ? ' y descansa ' + rondasTxt(rest) : '') + '.</p>';
+    }
+    var txt = 'Ojo: no todos juegan lo mismo. ' + tocanTxt(s, g), k = roundsToEven(s, 30);
+    if (k > 0) txt += ' Para emparejar, agrega ' + rondasTxt(k) + ' abajo.';
+    return '<p class="warn top">' + esc(txt) + '</p>';
+  }
+
+  // Agregar juegos: la app sugiere una cantidad con la que todos quedan iguales; con − y + se puede mover a otra.
+  function currentAddK(s) { return addK !== null ? addK : suggestedAdd(s); }
+  function addFeedbackHtml(s) {
+    var k = currentAddK(s), fixed = s.pairing === 'fixed', per = fixed ? Math.floor(s.entrants.length / 2) : Math.floor(s.entrants.length / 4);
+    var cur = gamesByEntrant(s), after = gamesAfterAdding(s, k), ev = evenAdds(s, 30), head = rondasTxt(k) + ' · ' + juegosTxt(k * per) + '. ', html, rule;
+    if (allEqual(after)) {
+      html = '<p class="plan">' + esc(head + (allEqual(cur)
+        ? (fixed ? 'Cada pareja juega ' : 'Cada jugador juega ') + (after[0] - cur[0]) + ' más y queda con ' + juegosTxt(after[0]) + '.'
+        : (fixed ? 'Todas las parejas quedan con ' : 'Todos quedan con ') + juegosTxt(after[0]) + '.')) + '</p>';
+    } else {
+      html = '<p class="plan">' + esc(head + 'Ojo: así no todos juegan lo mismo. Quedarían ' + quedanTxt(s, after)) + '</p>' + snapHtml('add', evenNeighbors(ev, k));
+    }
+    if (ev.length === 30) rule = fixed ? 'Todas las parejas juegan en cada ronda: con cualquier cantidad siguen iguales.' : 'Nadie descansa: con cualquier cantidad todos siguen jugando lo mismo.';
+    else if (!ev.length) rule = 'Con las rondas que hay, agregar más no deja a todos iguales.';
+    else rule = (allEqual(cur) ? 'Todos siguen jugando lo mismo si agregas ' : 'Para que todos queden iguales, agrega ') + listTxt(ev.slice(0, 4), ev.length > 4) + ' rondas.';
+    return html + '<p class="count">' + esc(rule) + '</p>';
+  }
+  function addActHtml(s) {
+    if (confirmAdd) {
+      return '<div class="confirm">Con ' + rondasTxt(currentAddK(s)) + ' no todos jugarán lo mismo. ¿Agregar igual? ' +
+        '<button class="btn small danger" data-act="add-force">Sí, agregar</button><button class="btn small ghost" data-act="add-no">No</button></div>';
+    }
+    return '<button class="btn" data-act="add-more">Agregar</button>';
+  }
+
   function addMoreHtml(s, p) {
     var hint = p.done === p.total ? 'Ya se jugaron todos los juegos. Si hay tiempo, agrega más.' : 'Agrega más juegos cuando los necesites.';
     if (s.mode === 'sets') {
@@ -1306,12 +1545,10 @@ button, input, select { font: inherit; color: inherit; }
       return '<section class="rules"><div class="vh"><h2>Agregar juegos</h2><p>' + hint + ' Otro juego entre las mismas dos parejas.</p></div>' +
         '<button class="btn" data-act="add-more" data-id="1">Agregar otro juego</button></section>';
     }
-    var per = s.pairing === 'fixed' ? Math.floor(s.entrants.length / 2) : Math.floor(s.entrants.length / 4), opts = '';
-    var init = Math.max(1, Math.min(30, s.initialRounds || s.rounds.length)), maxK = Math.max(6, init);
-    for (var k = 1; k <= maxK; k++) opts += '<option value="' + k + '"' + (k === init ? ' selected' : '') + '>' + k + (k === 1 ? ' ronda' : ' rondas') + ' · ' + (k * per) + (k * per === 1 ? ' juego' : ' juegos') + '</option>';
-    return '<section class="rules"><div class="vh"><h2>Agregar juegos</h2><p>' + hint + ' Por defecto se agrega lo mismo que al crear la jornada.</p></div>' +
-      '<div class="addmore"><label class="field" for="addn"><span>Cuánto agregar</span><select id="addn">' + opts + '</select></label>' +
-      '<button class="btn" data-act="add-more">Agregar</button></div></section>';
+    return '<section class="rules"><div class="vh"><h2>Agregar juegos</h2><p>' + hint + ' La app sugiere cuántas rondas agregar para que todos jueguen lo mismo. Si quieres otra cantidad, muévela con − y +.</p></div>' +
+      stepperHtml('add', currentAddK(s)) +
+      '<div class="addfb" id="add-fb">' + addFeedbackHtml(s) + '</div>' +
+      '<div class="mact" style="justify-content:flex-start;margin-top:4px" id="add-act">' + addActHtml(s) + '</div></section>';
   }
 
   function viewJornada(sid) {
@@ -1326,6 +1563,7 @@ button, input, select { font: inherit; color: inherit; }
       html += '<div class="titlebar"><div class="vh"><h2>' + esc(sessionTitle(s)) + '</h2></div><button class="btn small ghost" data-act="rename">Editar nombre</button></div>';
     }
     html += '<div class="vh"><p>' + esc(sessionFormat(s)) + ' · ' + esc(fmtDate(s.date)) + ' · ' + sessionSize(s) + ' · ' + p.done + ' de ' + p.total + ' jugados</p></div>';
+    html += gamesInfoHtml(s);
     if (s.mode === 'americano') {
       var fixed = s.pairing === 'fixed';
       var st = fixed ? americanoPairStandings(s, nameOf) : americanoStandings(s, nameOf);
@@ -1470,6 +1708,8 @@ button, input, select { font: inherit; color: inherit; }
       if (draft.chosen.length !== draft.nPlayers) { err.textContent = 'Elige ' + draft.nPlayers + ' jugadores (llevas ' + draft.chosen.length + ').'; return; }
       var R = parseInt(draft.rounds, 10) || defaultRounds(draft.nPlayers);
       if (R < 1 || R > 30) { err.textContent = 'Las rondas deben estar entre 1 y 30.'; return; }
+      // Si con esas rondas no todos juegan lo mismo, primero se pide confirmar.
+      if (gamesSplit(draft.nPlayers, R).extra && !confirmGen) { confirmGen = true; render(); return; }
       s.entrants = draft.chosen.slice();
       var sched = americanoSchedule(s.entrants, R);
       built = sched.rounds;
@@ -1481,6 +1721,7 @@ button, input, select { font: inherit; color: inherit; }
     s.initialRounds = s.rounds.length;
     data.sessions.push(s);
     persist();
+    confirmGen = false;
     var keep = { mode: draft.mode, pairing: draft.pairing, target: draft.target };
     draft = freshDraft(); draft.mode = keep.mode; draft.pairing = keep.pairing; draft.target = keep.target;
     toast('Jornada creada');
@@ -1496,6 +1737,7 @@ button, input, select { font: inherit; color: inherit; }
     });
     if (s.mode === 'americano' && s.pairing !== 'fixed') s.stats = { partnerRepeats: partnerRepeatsOf(s) };
     persist();
+    addK = null; confirmAdd = false;
     scrollToRound = first;
     render();
     toast(s.mode === 'sets' ? 'Juego agregado' : (k === 1 ? 'Ronda agregada' : k + ' rondas agregadas'));
@@ -1623,9 +1865,9 @@ button, input, select { font: inherit; color: inherit; }
     else if (act === 'rencom') { renamingCom = true; render(); var rc = document.getElementById('rencom'); if (rc) rc.focus(); }
     else if (act === 'rencom-cancel') { renamingCom = false; render(); }
     else if (act === 'quick-add') { addPlayer('quick'); }
-    else if (act === 'mode') { draft.mode = id; render(); }
-    else if (act === 'pairing') { draft.pairing = id; render(); }
-    else if (act === 'target') { draft.target = Number(id); render(); }
+    else if (act === 'mode') { draft.mode = id; confirmGen = false; render(); }
+    else if (act === 'pairing') { draft.pairing = id; confirmGen = false; render(); }
+    else if (act === 'target') { draft.target = Number(id); confirmGen = false; render(); }
     else if (act === 'chip') {
       var i = draft.chosen.indexOf(id);
       if (i >= 0) draft.chosen.splice(i, 1); else if (draft.chosen.length < draft.nPlayers) draft.chosen.push(id);
@@ -1678,10 +1920,30 @@ button, input, select { font: inherit; color: inherit; }
     }
     else if (act === 'rename') { renaming = true; render(); var r = document.getElementById('ren'); if (r) r.focus(); }
     else if (act === 'rename-cancel') { renaming = false; render(); }
-    else if (act === 'add-more') {
-      var sel = document.getElementById('addn');
-      addRounds(sel ? parseInt(sel.value, 10) : 1);
+    else if (act === 'step' || act === 'snap') {
+      // − / + mueven de 1 en 1; "Usar N rondas" salta a una cantidad con la que todos juegan lo mismo.
+      var stepK = el.getAttribute('data-k'), stepV = Number(id);
+      if (stepK === 'gen') {
+        draft.rounds = String(Math.max(1, Math.min(30, act === 'snap' ? stepV : draftRounds() + stepV)));
+        confirmGen = false; render();
+      } else {
+        var ss = findSession(route().sid);
+        if (ss) { addK = Math.max(1, Math.min(30, act === 'snap' ? stepV : currentAddK(ss) + stepV)); confirmAdd = false; render(); }
+      }
     }
+    else if (act === 'gen-no') { confirmGen = false; render(); }
+    else if (act === 'add-more') {
+      var addS = findSession(route().sid);
+      if (!addS) return;
+      if (addS.mode === 'sets') addRounds(1);
+      else if (allEqual(gamesAfterAdding(addS, currentAddK(addS)))) addRounds(currentAddK(addS));
+      else { confirmAdd = true; render(); }
+    }
+    else if (act === 'add-force') {
+      var fs = findSession(route().sid);
+      if (fs) addRounds(currentAddK(fs));
+    }
+    else if (act === 'add-no') { confirmAdd = false; render(); }
     else if (act === 'sess-del') { confirmSess = true; render(); }
     else if (act === 'sess-del-no') { confirmSess = false; render(); }
     else if (act === 'sess-del-yes') {
@@ -1706,7 +1968,9 @@ button, input, select { font: inherit; color: inherit; }
     var t = e.target;
     if (t.hasAttribute('data-n')) {
       var v = parseInt(t.value, 10);
-      if (t.getAttribute('data-n') === 'pairs') draft.nPairs = v; else draft.nPlayers = v;
+      // Al cambiar cuántos juegan, las rondas vuelven a las recomendadas para ese número (todos juegan lo mismo).
+      if (t.getAttribute('data-n') === 'pairs') draft.nPairs = v; else { draft.nPlayers = v; draft.rounds = ''; }
+      confirmGen = false;
       render();
     }
     else if (t.hasAttribute('data-pair')) {
@@ -1732,10 +1996,20 @@ button, input, select { font: inherit; color: inherit; }
     } else if (t.hasAttribute('data-pf')) {
       var pk2 = t.getAttribute('data-pf');
       if (pf[pk2]) pf[pk2].name = t.value;
-    } else if (t.hasAttribute('data-rounds')) {
-      draft.rounds = t.value;
-      var pl = document.getElementById('plan');
-      if (pl) pl.textContent = planInfo();
+    } else if (t.hasAttribute('data-stepk')) {
+      // Escribir el número de rondas: se actualiza el resumen sin redibujar el campo (para no perder el teclado).
+      if (t.getAttribute('data-stepk') === 'gen') {
+        draft.rounds = t.value; confirmGen = false;
+        var pb = document.getElementById('plan-box'), ga = document.getElementById('gen-act');
+        if (pb) pb.innerHTML = planBoxHtml();
+        if (ga) ga.innerHTML = genActHtml();
+      } else {
+        var ts = findSession(route().sid), tv = parseInt(t.value, 10);
+        addK = isNaN(tv) ? null : Math.max(1, Math.min(30, tv)); confirmAdd = false;
+        var fb = document.getElementById('add-fb'), aa = document.getElementById('add-act');
+        if (ts && fb) fb.innerHTML = addFeedbackHtml(ts);
+        if (ts && aa) aa.innerHTML = addActHtml(ts);
+      }
     } else if (t.hasAttribute('data-date')) {
       draft.date = t.value;
     } else if (t.hasAttribute('data-name')) {
@@ -1796,6 +2070,7 @@ button, input, select { font: inherit; color: inherit; }
 
   window.addEventListener('hashchange', function () {
     confirmSess = false; renaming = false; renamingCom = false; editing = null; live = null; confirmRound = null; pf.edit = null;
+    addK = null; confirmAdd = false; confirmGen = false;
     render(); window.scrollTo(0, 0);
   });
 
