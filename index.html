@@ -88,6 +88,7 @@ button, input, select { font: inherit; color: inherit; }
 .vh { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
 .vh h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; }
 .vh p { color: var(--muted); font-size: 13px; }
+.hl { background: var(--ball); color: var(--ball-ink); border-radius: 8px; padding: 2px 10px; display: inline-block; }
 .sec { font-family: var(--font-display); font-weight: 600; font-size: 17px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 26px 0 4px; }
 .back { display: inline-block; margin-bottom: 10px; color: var(--muted); text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; background: none; border: 0; padding: 0; cursor: pointer; }
 .titlebar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
@@ -225,8 +226,8 @@ button, input, select { font: inherit; color: inherit; }
 <div class="app">
   <header class="brand">
     <div class="brandtxt">
-      <p class="eyebrow" id="eyebrow">Cargando…</p>
-      <h1>Crack Padel</h1>
+      <p class="eyebrow">Crack Padel</p>
+      <h1 id="eyebrow">Cargando…</h1>
     </div>
     <button class="themebtn" id="theme-btn" type="button" aria-label="Cambiar entre tema claro y oscuro"><span class="ico" id="theme-ico" aria-hidden="true"></span><span id="theme-lb">Claro</span></button>
   </header>
@@ -253,7 +254,7 @@ button, input, select { font: inherit; color: inherit; }
   'use strict';
 
   // VERSIÓN DE LA APP: cambia este número cada vez que subas ajustes. Aparece abajo en la pantalla y en la sección Comunidad.
-  var APP_VERSION = '2.3';
+  var APP_VERSION = '2.4';
 
   // BEGIN LOGIC
   // Puntos por defecto: Victoria 3, Empate 1, Derrota 0.
@@ -1074,7 +1075,7 @@ button, input, select { font: inherit; color: inherit; }
 
   function viewRanking() {
     var r = data.rules;
-    var head = '<div class="vh"><h2>Ranking</h2><p>Victoria ' + r.win + ' · Empate ' + r.draw + ' · Derrota ' + r.loss + ' pts</p></div>';
+    var head = '<div class="vh"><h2><span class="hl">Ranking</span></h2><p>Victoria ' + r.win + ' · Empate ' + r.draw + ' · Derrota ' + r.loss + ' pts</p></div>';
     var activeList = sortedPlayers();
     if (!activeList.length) {
       return head + '<div class="empty"><p>Aún no hay jugadores activos en el ranking.</p><a href="#jugadores">Ir a Jugadores</a></div>';
