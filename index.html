@@ -254,7 +254,7 @@ button, input, select { font: inherit; color: inherit; }
   'use strict';
 
   // VERSIÓN DE LA APP: cambia este número cada vez que subas ajustes. Aparece abajo en la pantalla y en la sección Comunidad.
-  var APP_VERSION = '2.4';
+  var APP_VERSION = '2.5';
 
   // BEGIN LOGIC
   // Puntos por defecto: Victoria 3, Empate 1, Derrota 0.
@@ -1118,7 +1118,7 @@ button, input, select { font: inherit; color: inherit; }
 
   function viewJuegos() {
     var n = data.sessions.length;
-    var head = '<div class="vh"><h2>Juegos</h2><p>' + n + (n === 1 ? ' jornada' : ' jornadas') + '</p></div>';
+    var head = '<div class="vh"><h2><span class="hl">Juegos</span></h2><p>' + n + (n === 1 ? ' jornada' : ' jornadas') + '</p></div>';
     if (!n) return head + '<div class="empty"><p>Todavía no hay jornadas.</p><a href="#nuevo">Crear una jornada</a></div>';
     var js = data.sessions.slice().reverse().sort(function (a, b) { return b.date.localeCompare(a.date); });
     return head + '<div class="games">' + js.map(function (s) {
@@ -1161,7 +1161,7 @@ button, input, select { font: inherit; color: inherit; }
 
   function viewNuevo() {
     normalizeDraft();
-    var head = '<div class="vh"><h2>Nueva jornada</h2><p>Elige el formato y la app genera los juegos rotados.</p></div>';
+    var head = '<div class="vh"><h2><span class="hl">Nueva jornada</span></h2><p>Elige el formato y la app genera los juegos rotados.</p></div>';
     var isSets = draft.mode === 'sets', fixed = draft.pairing === 'fixed';
     var html = head + '<form class="form" id="gen-form" novalidate>';
     html += segHtml('Formato', 'mode', [['sets', 'Por sets'], ['americano', 'Americano']], draft.mode);
@@ -1311,7 +1311,7 @@ button, input, select { font: inherit; color: inherit; }
       ? '<h3 class="sec">Deshabilitados</h3><p class="count">No salen en el ranking ni al armar jornadas. Su historial se conserva.</p><ul class="plist" style="margin-top:6px">' + offList.map(row).join('') + '</ul>'
       : '';
     var r = data.rules;
-    return '<div class="vh"><h2>Jugadores</h2><p>' + onList.length + (onList.length === 1 ? ' activo' : ' activos') + (offList.length ? ' · ' + offList.length + (offList.length === 1 ? ' deshabilitado' : ' deshabilitados') : '') + '</p></div>' +
+    return '<div class="vh"><h2><span class="hl">Jugadores</span></h2><p>' + onList.length + (onList.length === 1 ? ' activo' : ' activos') + (offList.length ? ' · ' + offList.length + (offList.length === 1 ? ' deshabilitado' : ' deshabilitados') : '') + '</p></div>' +
       '<form class="form" id="player-form" novalidate><h3 class="sec" style="margin:0">Nuevo jugador</h3>' + playerFields('main', pf.main, 'main') + '<button class="btn block" type="submit">Agregar jugador</button></form>' +
       '<ul class="plist">' + list + '</ul>' + offHtml +
       '<section class="rules"><div class="vh"><h2>Reglas de puntos</h2><p>Se aplican a cada jugador de la pareja.</p></div>' +
@@ -1323,7 +1323,7 @@ button, input, select { font: inherit; color: inherit; }
   function viewComunidad() {
     var html = '', ver = '<p class="ver">Crack Padel · versión ' + esc(APP_VERSION) + '</p>';
     if (prefs.mode === 'local') {
-      html = '<div class="vh"><h2>Comunidad</h2><p>Modo local</p></div>' +
+      html = '<div class="vh"><h2><span class="hl">Comunidad</span></h2><p>Modo local</p></div>' +
         '<p class="help">Estás usando la app solo en este teléfono. Nadie más ve tus jugadores ni tus juegos. Si quieres compartirlos, crea una comunidad con tus datos actuales: se genera un código y lo pasas a tu grupo.</p>' +
         '<form class="form" id="conv-form" novalidate style="margin-top:16px"><label class="field" for="pk-name"><span>Nombre de la comunidad</span><input id="pk-name" type="text" maxlength="40" data-pkname value="' + esc(pick.name) + '" placeholder="Ej. Los RompeVidrios" autocomplete="off"></label>' +
         '<p class="err" role="alert">' + esc(pick.msg) + '</p><button class="btn block" type="submit"' + (pick.busy ? ' disabled' : '') + '>' + (pick.busy ? 'Creando…' : 'Crear comunidad con mis datos') + '</button></form>' +
@@ -1331,7 +1331,7 @@ button, input, select { font: inherit; color: inherit; }
         '<div class="mact" style="justify-content:flex-start;margin-top:22px"><button class="btn ghost" data-act="leave">Cambiar de comunidad</button></div>';
       return html + ver;
     }
-    html = '<div class="vh"><h2>Comunidad</h2><p>Datos compartidos</p></div>';
+    html = '<div class="vh"><h2><span class="hl">Comunidad</span></h2><p>Datos compartidos</p></div>';
     if (renamingCom) {
       html += '<form class="inline" id="rencom-form" novalidate style="margin-bottom:14px"><input id="rencom" type="text" maxlength="40" value="' + esc(data.name) + '" aria-label="Nombre de la comunidad" autocomplete="off">' +
         '<button class="btn" type="submit">Guardar</button><button class="btn ghost" type="button" data-act="rencom-cancel">Cancelar</button></form>';
